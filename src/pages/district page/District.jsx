@@ -22,8 +22,6 @@ function District() {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const { country } = useGlobal();
-  console.log(country);
-  console.log(districtid);
   const [compounds, setCompounds] = useState([]);
   console.log(compounds);
   const [loadingcompound, setLoadingcompound] = useState(true);
@@ -41,7 +39,11 @@ function District() {
             id: doc.id,
             ...doc.data(),
           }))
-          .filter((item) => item.district?.en === districtid); // ← الفلترة هنا
+          .filter(
+            (item) =>
+              item.district?.en?.trim().toLowerCase() ===
+              districtid.toLowerCase()
+          );
 
         setCompounds(compoundsData);
       } catch (err) {

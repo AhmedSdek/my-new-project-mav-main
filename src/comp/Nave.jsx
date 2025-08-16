@@ -35,7 +35,11 @@ function Navs() {
         const uniqueDistricts = allDistricts.filter(
           (district, index, self) =>
             index ===
-            self.findIndex((d) => d.en === district.en && d.ar === district.ar)
+            self.findIndex(
+              (d) =>
+                d.en.toLowerCase() === district.en.toLowerCase() &&
+                d.ar === district.ar
+            )
         );
         setDistricts(uniqueDistricts);
       } catch (err) {

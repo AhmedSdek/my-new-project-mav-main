@@ -34,7 +34,7 @@ function Home() {
           position: "relative",
           backgroundColor: "white",
           minHeight: "400px",
-          overflow: "hidden",
+          // overflow: "hidden",
         }}
         className="home-header"
       >
