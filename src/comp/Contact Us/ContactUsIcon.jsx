@@ -9,8 +9,9 @@ function ContactUsIcon({ sectionName = "", sectionData = "" }) {
   const lang = i18n.language;
   return (
     <Stack sx={{ flexDirection: "row", gap: 2, justifyContent: "end" }}>
-      <a href="tel:+201008582515">
+      <a aria-label="call us" href="tel:+201008582515">
         <IconButton
+          aria-label="call us"
           variant="contained"
           sx={{
             backgroundColor: "rgb(228, 235, 242)",
@@ -22,6 +23,7 @@ function ContactUsIcon({ sectionName = "", sectionData = "" }) {
         </IconButton>
       </a>
       <a
+        aria-label="whatsApp With Data"
         target="_blank"
         href={`https://wa.me/+201008582515?text=${
           sectionName && `Section%20Name%20:%20${sectionName}`
@@ -64,6 +66,7 @@ function ContactUsIcon({ sectionName = "", sectionData = "" }) {
         }`}
       >
         <IconButton
+          aria-label="whatsApp"
           className="whatsbtn"
           variant="contained"
           sx={{
