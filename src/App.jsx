@@ -109,7 +109,9 @@ function App() {
   const { i18n } = useTranslation();
   const { setCountry } = useGlobal();
   const [mode, setMode] = useState(localStorage.getItem("mtTheme") || "light");
-
+  useEffect(() => {
+    document.documentElement.lang = i18n.language; // 👈 يغير <html lang="">
+  }, [i18n.language]);
   const darkTheme = createTheme({
     palette: {
       mode,
