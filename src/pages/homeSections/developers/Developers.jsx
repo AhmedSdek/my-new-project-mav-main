@@ -80,7 +80,6 @@ export default function Developers() {
           <Swiper
             slidesPerView={7}
             freeMode={true}
-            style={{ margin: "20px 0" }}
             autoplay={{
               delay: 2500,
               disableOnInteraction: false,
@@ -124,16 +123,27 @@ export default function Developers() {
                   style={{ borderRadius: "50%" }}
                 >
                   <Link
-                    style={{ width: "126px", height: "126px " }}
-                    aria-label={developers.devName}
+                    style={{
+                      display: "block",
+                      width: "126px",
+                      height: "126px",
+                    }}
+                    aria-label={
+                      lang === "ar" ? item.devName.ar : item.devName.en
+                    }
                     to={`/developers/${item.id}`}
                   >
                     <img
-                      className="slidImg sm-shadow w-shadow mx-auto img-fluid bg-white rounded-circle p-md-2 p-1 img-fluid  "
-                      style={{ borderRadius: "50%" }}
+                      className="slidImg sm-shadow w-shadow mx-auto bg-white rounded-circle p-md-2 p-1 img-fluid"
                       src={item.img[0]}
-                      alt={item.devName.en}
-                    ></img>
+                      alt={lang === "ar" ? item.devName.ar : item.devName.en}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        objectFit: "cover", // يحافظ على aspect ratio بدون تشويه
+                      }}
+                    />
                   </Link>
                 </SwiperSlide>
               );

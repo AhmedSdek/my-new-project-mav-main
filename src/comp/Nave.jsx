@@ -48,12 +48,11 @@ function Navs() {
     fetchcompounds();
   }, [country]);
 
-  const [ope, setOpe] = useState(false);
   const handleToggleLanguage = () => {
     window.location.reload();
     const newLang = lang === "ar" ? "en" : "ar";
     i18n.changeLanguage(newLang);
-    localStorage.setItem("i18nextLng", newLang); // تحطها صريح عشان مفيش حاجة تلعب فيها
+    localStorage.setItem("i18nextLng", newLang);
   };
   const handleToggleCountry = () => {
     const newCountry =

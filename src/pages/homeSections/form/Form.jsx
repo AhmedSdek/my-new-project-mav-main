@@ -69,7 +69,7 @@ function Form({ hedText, text2, mail, Alert }) {
         {/* <img style={{ width: '100px', height: '100px' }} src={img} alt='' /> */}
         <Typography
           variant="h5"
-          component="h4"
+          component="h1"
           sx={{ fontWeight: "bold", color: "#305070", padding: "10px" }}
         >
           {hedText}
@@ -169,9 +169,15 @@ function Form({ hedText, text2, mail, Alert }) {
             }}
           />
           <Button
+            aria-label="contact us"
             variant="contained"
             type="submit"
-            sx={{ width: "50%", backgroundColor: "#ff914d" }}
+            sx={{
+              width: "50%",
+              backgroundColor: "#ff914d",
+              color: "#1e4164",
+              fontWeight: "bold",
+            }}
             onClick={() => {
               setBtn(true);
             }}

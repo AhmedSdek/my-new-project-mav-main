@@ -1,7 +1,4 @@
-.slider-section{
-  /* background-color: white; */
-  /* padding: 40px 0 0; */
-}
+
 .section-title{
   text-align: center;
   box-shadow: 0 -1px 15px -3px rgba(0,0,0,.2)!important;
@@ -40,5 +37,5 @@ width:fit-content ;
   }
   .swiper-free-mode>.swiper-wrapper {
     transition-timing-function: ease-out;
-    margin: 60px auto;
+    margin: 15px auto;
 }

@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import img from './SAHE L MAP.webp'
-import { Box, Container, Stack, Typography } from '@mui/material'
+import React from "react";
+import { Link } from "react-router-dom";
+import img from "./SAHE L MAP.webp";
+import { Box, Container, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+
 function SahelMap() {
   const { i18n } = useTranslation();
   const lang = i18n.language;
+
   return (
     <Container>
       <div style={{ marginTop: "15px" }}>
@@ -20,45 +22,41 @@ function SahelMap() {
           <Typography sx={{ fontWeight: "bold" }}>
             {lang === "ar"
               ? "استكشف كل المشاريع في الساحل الشمالي"
-              : "Explore all project in north coast"}
+              : "Explore all projects in North Coast"}
           </Typography>
         </Stack>
+
         <Link
-          aria-label="sahel-map"
           to="/sahelmap"
-          className="saheldev"
+          aria-label={
+            lang === "ar" ? "خريطة الساحل الشمالي" : "Sahel North Coast Map"
+          }
           style={{
             display: "inline-block",
-            height: "fit-content",
             width: "100%",
+            textDecoration: "none",
           }}
         >
           <Box
-            className="videodev"
             sx={{
               width: "100%",
               height: { xs: "100px", sm: "150px", md: "180px" },
+              borderRadius: "8px",
+              overflow: "hidden",
               position: "relative",
             }}
           >
-            <div
+            <img
+              src={img}
+              alt={
+                lang === "ar" ? "خريطة الساحل الشمالي" : "Sahel North Coast Map"
+              }
               style={{
                 width: "100%",
                 height: "100%",
-                position: "relative",
-                borderRadius: "8px",
-                overflow: "hidden",
+                objectFit: "cover",
               }}
-            >
-              <img
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
-                src={img}
-                alt=""
-              />
-            </div>
+            />
           </Box>
         </Link>
       </div>
@@ -66,4 +64,4 @@ function SahelMap() {
   );
 }
 
-export default SahelMap
+export default SahelMap;
