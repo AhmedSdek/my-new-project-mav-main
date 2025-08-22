@@ -66,7 +66,7 @@ function NorthCoastProjects() {
         }}
       >
         <Box sx={{ height: "100%", width: "100%" }}>
-          {true ? (
+          {loading ? (
             <Box
               sx={{
                 display: "flex",

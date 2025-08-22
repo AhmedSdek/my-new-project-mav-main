@@ -142,7 +142,19 @@ function App() {
         <Navs />
         <ToastContainer />
         <ScrollToTop />
-
+        {/* <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: {
+              xs: "calc(100vh - 160px)",
+              sm: "calc(100vh - 100px)",
+            },
+          }}
+        >
+          <MavLoading />
+        </Box> */}
         <Suspense
           fallback={
             <Box
