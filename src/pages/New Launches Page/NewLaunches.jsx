@@ -56,23 +56,25 @@ function NewLaunches() {
           minHeight: "calc(100vh - 100px)",
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: "60px",
         }}
       >
         <Box sx={{ height: "100%" }}>
           {loading ? (
-            <div
-              style={{
+            <Box
+              sx={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                height: "calc(100vh - 100px)",
+                height: {
+                  xs: "calc(100vh - 160px)",
+                  sm: "calc(100vh - 100px)",
+                },
               }}
             >
               <MavLoading />
-            </div>
+            </Box>
           ) : newlaunch && newlaunch.length > 0 ? (
-            <Stack>
+            <Stack sx={{ paddingTop: "60px" }}>
               <Container>
                 <Stack
                   sx={{

@@ -8,23 +8,11 @@ import {
   Stack,
   Typography,
   Badge,
-  TextField,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-  Slider,
-  IconButton,
-  Collapse,
-  SwipeableDrawer,
-  Grid,
 } from "@mui/material";
 import {
   BedroomParentOutlined,
   BathroomOutlined,
   AspectRatio,
-  Tune,
-  Close,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { Col, Row } from "react-bootstrap";
@@ -91,10 +79,6 @@ function MaverickDeals() {
     fetchDeals();
   }, [country]);
 
-  // const handleSliderChange = (type) => (event, newValue) => {
-  //   setFilters((prev) => ({ ...prev, [type]: newValue }));
-  // };
-
   const filteredDeals = deals.filter((deal) => {
     const price = Number(deal.price);
     const area = Number(deal.Area);
@@ -145,7 +129,7 @@ function MaverickDeals() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "calc(100vh - 100px)",
+          height: { xs: "calc(100vh - 160px)", sm: "calc(100vh - 100px)" },
         }}
       >
         <MavLoading />

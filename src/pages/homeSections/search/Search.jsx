@@ -178,10 +178,31 @@ function Search() {
       onSubmit={(e) => e.preventDefault()}
     >
       <TextField
-        color="warning"
         className="header-search"
-        sx={{ backgroundColor: "white", width: "100%", borderRadius: "10px" }}
-        id="outlined-search"
+        size="small"
+        sx={{
+          backgroundColor: "white",
+          width: "100%",
+          borderRadius: "10px",
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "50px",
+            height: "40px",
+            padding: "0 12px",
+            "& fieldset": {
+              border: "none",
+            },
+            "&:hover fieldset": {
+              border: "none",
+            },
+            "&.Mui-focused fieldset": {
+              border: "none",
+            },
+          },
+          "& .MuiOutlinedInput-input": {
+            padding: "10px 14px",
+          },
+        }}
+        id="search"
         placeholder="Developers Or Area Or Compounds"
         type="search"
         onChange={(e) => {

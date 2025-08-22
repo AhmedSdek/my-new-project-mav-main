@@ -38,139 +38,152 @@ function NewLaunchDetails() {
 
   return (
     <Box
-      sx={{
-        minHeight: "100vh",
-        padding: { xs: "70px 0 0", sm: "70px 0 0", md: "110px 0 0" },
-      }}
+      sx={
+        {
+          // minHeight: "100vh",
+        }
+      }
     >
       {loading ? (
-        <Stack sx={{ justifyContent: "center", alignItems: "center" }}>
-          <ReactLoading
-            color="black"
-            type={"spin"}
-            height={"50px"}
-            width={"50px"}
-          />
-        </Stack>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: {
+              xs: "calc(100vh - 160px)",
+              sm: "calc(100vh - 100px)",
+            },
+          }}
+        >
+          <MavLoading />
+        </Box>
       ) : newlaunch ? (
-        <Container>
-          <Stack
-            sx={{
-              height: { md: "400px", sm: "300px" },
-              borderRadius: "10px",
-              overflow: "hidden",
-            }}
-          >
-            {!newlaunch.video ? (
-              <img
-                style={{ width: "100%", height: "100%" }}
-                src={newlaunch.img[0]}
-                alt=""
-              />
-            ) : (
-              <video
-                autoPlay
-                style={{ width: "100%", height: "100%" }}
-                controls
-                src={newlaunch.video}
-                type="video/mp4"
-              />
-            )}
-          </Stack>
-          <Stack
-            sx={{
-              flexDirection: { sm: "column", md: "row" },
-              gap: 4,
-              marginTop: "30px",
-              alignItems: "center",
-            }}
-          >
-            <Stack>
-              <Link
-                to={`/developers/${newlaunch.developer.devName.en}`}
-                style={{ borderRadius: "50%" }}
-              >
+        <Stack
+          sx={{ padding: { xs: "70px 0 0", sm: "70px 0 0", md: "110px 0 0" } }}
+        >
+          <Container>
+            <Stack
+              sx={{
+                height: { md: "400px", sm: "300px" },
+                borderRadius: "10px",
+                overflow: "hidden",
+                // padding: { xs: "70px 0 0", sm: "70px 0 0", md: "110px 0 0" },
+              }}
+            >
+              {!newlaunch.video ? (
                 <img
-                  style={{
-                    width: "100px",
-                    boxShadow: "0 -1px 15px -3px rgba(0, 0, 0, 0.2)",
-                    borderRadius: "50%",
-                  }}
-                  src={newlaunch.devIcon}
-                  alt={newlaunch.developer.devName[lang]}
+                  style={{ width: "100%", height: "100%" }}
+                  src={newlaunch.img[0]}
+                  alt=""
                 />
-              </Link>
+              ) : (
+                <video
+                  autoPlay
+                  style={{ width: "100%", height: "100%" }}
+                  controls
+                  src={newlaunch.video}
+                  type="video/mp4"
+                />
+              )}
             </Stack>
-            <Stack sx={{ width: "100%" }}>
-              <Stack
-                sx={{
-                  justifyContent: "center",
-                  alignItems: { xs: "center", md: "initial" },
-                }}
-              >
-                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                  {newlaunch.launchName[lang]}
-                </Typography>
+            <Stack
+              sx={{
+                flexDirection: { sm: "column", md: "row" },
+                gap: 4,
+                marginTop: "30px",
+                alignItems: "center",
+              }}
+            >
+              <Stack>
+                <Link
+                  to={`/developers/${newlaunch.developer.devName.en}`}
+                  style={{ borderRadius: "50%" }}
+                >
+                  <img
+                    style={{
+                      width: "100px",
+                      boxShadow: "0 -1px 15px -3px rgba(0, 0, 0, 0.2)",
+                      borderRadius: "50%",
+                    }}
+                    src={newlaunch.devIcon}
+                    alt={newlaunch.developer.devName[lang]}
+                  />
+                </Link>
               </Stack>
-              <Stack
-                sx={{
-                  flexDirection: { sm: "column", md: "row" },
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
+              <Stack sx={{ width: "100%" }}>
                 <Stack
                   sx={{
                     justifyContent: "center",
                     alignItems: { xs: "center", md: "initial" },
                   }}
                 >
-                  <Typography variant="caption" sx={{ fontWeight: "bold" }}>
-                    {newlaunch.developer.devName[lang]}
+                  <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                    {newlaunch.launchName[lang]}
                   </Typography>
-                  <Typography variant="caption">
-                    {newlaunch.Location[lang]}
-                  </Typography>
-                  {newlaunch.price && (
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                      {` ${newlaunch.price} EGP `}
-                      <span style={{ fontWeight: "normal", fontSize: "14px" }}>
-                        Start Price
-                      </span>
-                    </Typography>
-                  )}
                 </Stack>
-                <Stack>
-                  <ContactUsBtn
-                    sectionName="New-Launch"
-                    sectionData={newlaunch}
-                  />
+                <Stack
+                  sx={{
+                    flexDirection: { sm: "column", md: "row" },
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Stack
+                    sx={{
+                      justifyContent: "center",
+                      alignItems: { xs: "center", md: "initial" },
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                      {newlaunch.developer.devName[lang]}
+                    </Typography>
+                    <Typography variant="caption">
+                      {newlaunch.Location[lang]}
+                    </Typography>
+                    {newlaunch.price && (
+                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                        {` ${newlaunch.price} EGP `}
+                        <span
+                          style={{ fontWeight: "normal", fontSize: "14px" }}
+                        >
+                          Start Price
+                        </span>
+                      </Typography>
+                    )}
+                  </Stack>
+                  <Stack>
+                    <ContactUsBtn
+                      sectionName="New-Launch"
+                      sectionData={newlaunch}
+                    />
+                  </Stack>
                 </Stack>
               </Stack>
             </Stack>
-          </Stack>
-          <hr />
-          <Stack sx={{ margin: "40px 0" }}>
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: "bold", padding: "0 0 10px 0" }}
-            >
-              Launch Details
-            </Typography>
-            <ReactMarkdown
-              components={{
-                p: ({ node, ...props }) => (
-                  <p style={{ whiteSpace: "pre-line" }} {...props} />
-                ),
-                h6: ({ node, ...props }) => (
-                  <h6 style={{ margin: "10px 0" }} {...props} />
-                ),
-              }}
-            >
-              {newlaunch.Dis[lang]}
-            </ReactMarkdown>
-          </Stack>
-        </Container>
+            <hr />
+            <Stack sx={{ margin: "40px 0" }}>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: "bold", padding: "0 0 10px 0" }}
+              >
+                Launch Details
+              </Typography>
+              <ReactMarkdown
+                components={{
+                  p: ({ node, ...props }) => (
+                    <p style={{ whiteSpace: "pre-line" }} {...props} />
+                  ),
+                  h6: ({ node, ...props }) => (
+                    <h6 style={{ margin: "10px 0" }} {...props} />
+                  ),
+                }}
+              >
+                {newlaunch.Dis[lang]}
+              </ReactMarkdown>
+            </Stack>
+          </Container>
+        </Stack>
       ) : (
         <Typography>
           {lang === "en"
