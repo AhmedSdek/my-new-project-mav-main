@@ -13,6 +13,10 @@ p{
     padding-left: 5px !important;
     border-radius: 10px;
 }
+.nav-link.active{
+  background-color: rgb(255 251 251 / 5%);
+
+}
 .nav-link::before{
     content: '';
     position: absolute;
@@ -46,6 +50,9 @@ p{
 }
 .nav-link:hover:before{
     left: 0;
+}
+.nav-link.active:before{
+  left: 0;
 }
 
 .footer-title{

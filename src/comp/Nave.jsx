@@ -1,7 +1,7 @@
 import { Container, Nav, NavDropdown, Navbar } from "react-bootstrap";
 import "./min.css";
 import logoPhoto from "./log.webp";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { db } from "../firebase/config";
 import { Button, Stack, ToggleButton, Tooltip } from "@mui/material";
 import { collection, getDocs, query, where } from "firebase/firestore";
@@ -90,15 +90,20 @@ function Navs() {
             style={{ justifyContent: "center" }}
           >
             <Nav style={{ fontSize: "15px" }}>
-              <Nav.Link as={Link} to="/" eventKey="0">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+              >
                 {lang === "ar" ? "الصفحه الرئيسيه " : "Home"}
-              </Nav.Link>
+              </NavLink>
               <NavDropdown
                 title={lang === "ar" ? "المناطق" : "Districts"}
                 id="navbarScrollingDropdown"
               >
                 {districts.map((link, index) => {
-                  console.log(link);
                   return (
                     <NavDropdown.Item
                       as={Link}
@@ -112,21 +117,51 @@ function Navs() {
                   );
                 })}
               </NavDropdown>
-              <Nav.Link as={Link} to="/sell" eventKey="0">
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+                to="/sell"
+                eventKey="0"
+              >
                 {lang === "ar" ? "بيع-إيجار" : "Sell-Rent"}
-              </Nav.Link>
-              <Nav.Link as={Link} to="/newlaunches" eventKey="0">
+              </NavLink>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+                to="/newlaunches"
+                eventKey="0"
+              >
                 {lang === "ar" ? "وحدات جديده" : "New Launches"}
-              </Nav.Link>
-              <Nav.Link as={Link} to="/contact" eventKey="0">
+              </NavLink>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+                to="/contact"
+                eventKey="0"
+              >
                 {lang === "ar" ? "اتصل بنا" : "Contact Us"}
-              </Nav.Link>
-              <Nav.Link as={Link} to="/about" eventKey="0">
+              </NavLink>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+                to="/about"
+                eventKey="0"
+              >
                 {lang === "ar" ? "عنا" : "About"}
-              </Nav.Link>
-              <Nav.Link as={Link} to="/maverickdeals" eventKey="0">
+              </NavLink>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+                to="/maverickdeals"
+                eventKey="0"
+              >
                 {lang === "ar" ? "عروض مافريك" : "Maverick Deals"}
-              </Nav.Link>
+              </NavLink>
             </Nav>
           </Navbar.Collapse>
           <Navbar.Collapse
@@ -138,16 +173,6 @@ function Navs() {
                 gap: "10px",
               }}
             >
-              {/* <Nav.Link
-                style={{ width: "100%" }}
-                as={Link}
-                to="/favoriteList"
-                eventKey="0"
-              >
-                <Tooltip title="FavoriteList">
-                  <FavoriteBorder />
-                </Tooltip>
-              </Nav.Link> */}
               <Stack sx={{ flexDirection: "row" }}>
                 <ToggleButton
                   sx={{
