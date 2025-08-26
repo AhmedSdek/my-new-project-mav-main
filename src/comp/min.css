@@ -51,9 +51,7 @@ p{
 .nav-link:hover:before{
     left: 0;
 }
-.nav-link.active:before{
-  left: 0;
-}
+
 
 .footer-title{
     text-align: center;
