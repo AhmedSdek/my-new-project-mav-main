@@ -50,6 +50,9 @@ p{
 }
 
 
+.nav-link:hover:before{
+    left: 0;
+}
 
 .footer-title{
     text-align: center;
