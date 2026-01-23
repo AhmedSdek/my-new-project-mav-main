@@ -48,11 +48,10 @@ p{
 .nav-link:hover{
     background-color: rgb(255 251 251 / 5%);
 }
+
+
 .nav-link:hover:before{
     left: 0;
-}
-.nav-link.active:before{
-  left: 0;
 }
 
 .footer-title{
