@@ -348,100 +348,104 @@ function ProjectDe() {
         </Grid>
 
         {/* 4. Properties List */}
-        <Box sx={{ mt: 8 }}>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 800, mb: 4, textAlign: "center" }}>
-            Available Units in {compound?.compoundName[lang]}
-          </Typography>
-          <Grid container spacing={3}>
-            {relatedProjects.map((item) => (
-              <Grid item xs={12} sm={6} lg={4} key={item.id}>
-                <Card
-                  sx={{
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                    transition: "0.3s",
-                    "&:hover": {
-                      transform: "translateY(-10px)",
-                      boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-                    },
-                  }}>
-                  <Link
-                    to={`/developers/${devId}/${projId}/${item.id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}>
-                    <Box
-                      component="img"
-                      src={item.img[0]}
-                      sx={{
-                        width: "100%",
-                        height: "220px",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <CardContent>
-                      <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                        {item.Type[lang]}
-                      </Typography>
-                      <Stack
-                        direction="row"
-                        spacing={2}
-                        sx={{ mb: 2, color: "text.secondary" }}>
-                        <Stack
-                          direction="row"
-                          alignItems="center"
-                          spacing={0.5}>
-                          <KingBed fontSize="small" />
-                          <Typography variant="caption">
-                            {item.Bed[lang]}
-                          </Typography>
-                        </Stack>
-                        <Stack
-                          direction="row"
-                          alignItems="center"
-                          spacing={0.5}>
-                          <Bathtub fontSize="small" />
-                          <Typography variant="caption">
-                            {item.Bath[lang]}
-                          </Typography>
-                        </Stack>
-                        <Stack
-                          direction="row"
-                          alignItems="center"
-                          spacing={0.5}>
-                          <SquareFoot fontSize="small" />
-                          <Typography variant="caption">
-                            {item.Area} m²
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                      <Divider />
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        sx={{ mt: 2 }}>
+        {relatedProjects.length > 0 && (
+          <Box sx={{ mt: 8 }}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 800, mb: 4, textAlign: "center" }}>
+              Available Units in {compound?.compoundName[lang]}
+            </Typography>
+            <Grid container spacing={3}>
+              {relatedProjects.map((item) => (
+                <Grid item xs={12} sm={6} lg={4} key={item.id}>
+                  <Card
+                    sx={{
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                      transition: "0.3s",
+                      "&:hover": {
+                        transform: "translateY(-10px)",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                      },
+                    }}>
+                    <Link
+                      to={`/developers/${devId}/${projId}/${item.id}`}
+                      style={{ textDecoration: "none", color: "inherit" }}>
+                      <Box
+                        component="img"
+                        src={item.img[0]}
+                        sx={{
+                          width: "100%",
+                          height: "220px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <CardContent>
                         <Typography
                           variant="h6"
-                          color="primary"
-                          sx={{ fontWeight: 800 }}>
-                          {Intl.NumberFormat().format(item.price)}{" "}
-                          <Typography component="span" variant="caption">
-                            {item.monyType?.en === "dollar" ? "$" : "EGP"}
-                          </Typography>
+                          sx={{ fontWeight: 700, mb: 1 }}>
+                          {item.Type[lang]}
                         </Typography>
-                        <ContactUsIcon
-                          sectionName="inventory"
-                          sectionData={item}
-                        />
-                      </Stack>
-                    </CardContent>
-                  </Link>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                        <Stack
+                          direction="row"
+                          spacing={2}
+                          sx={{ mb: 2, color: "text.secondary" }}>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={0.5}>
+                            <KingBed fontSize="small" />
+                            <Typography variant="caption">
+                              {item.Bed[lang]}
+                            </Typography>
+                          </Stack>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={0.5}>
+                            <Bathtub fontSize="small" />
+                            <Typography variant="caption">
+                              {item.Bath[lang]}
+                            </Typography>
+                          </Stack>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={0.5}>
+                            <SquareFoot fontSize="small" />
+                            <Typography variant="caption">
+                              {item.Area} m²
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                        <Divider />
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          sx={{ mt: 2 }}>
+                          <Typography
+                            variant="h6"
+                            color="primary"
+                            sx={{ fontWeight: 800 }}>
+                            {Intl.NumberFormat().format(item.price)}{" "}
+                            <Typography component="span" variant="caption">
+                              {item.monyType?.en === "dollar" ? "$" : "EGP"}
+                            </Typography>
+                          </Typography>
+                          <ContactUsIcon
+                            sectionName="inventory"
+                            sectionData={item}
+                          />
+                        </Stack>
+                      </CardContent>
+                    </Link>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
       </Container>
 
       {/* Fullscreen Zoom Modal */}
