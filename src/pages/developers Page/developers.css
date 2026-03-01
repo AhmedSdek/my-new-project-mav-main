@@ -139,3 +139,17 @@ height: 100% !important;
 width: 100% !important;
 
 } 
+/* تحسين شكل الانتقال للينك */
+a {
+  text-decoration: none;
+}
+
+/* تأثير الدوران الخفيف على الصورة عند التحويم */
+.MuiAvatar-root {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* لجعل الخط العربي يبدو أفضل */
+body[dir="rtl"] {
+  font-family: 'Cairo', sans-serif;
+}

@@ -1,8 +1,16 @@
-import { Paper, Stack, TextField, Typography } from "@mui/material";
+import {
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+  InputAdornment,
+  Box,
+} from "@mui/material";
 import React, { memo, useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import { useTranslation } from "react-i18next";
+import SearchIcon from "@mui/icons-material/Search";
 
 function Search() {
   const { i18n } = useTranslation();
@@ -36,39 +44,34 @@ function Search() {
           ...doc.data(),
           _type: "compound",
         }));
-
         const deals = dealsSnap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           _type: "deals",
         }));
-
         const newLaunches = newLaunchSnap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           _type: "newLaunch",
         }));
-
         const inventorys = inventorySnap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           _type: "inventory",
         }));
-
         const developers = developerSnap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           _type: "developer",
         }));
 
-        const allData = [
+        setAdminData([
           ...compounds,
           ...deals,
           ...newLaunches,
           ...inventorys,
           ...developers,
-        ];
-        setAdminData(allData);
+        ]);
       } catch (err) {
         console.error("خطأ أثناء تحميل البيانات:", err);
         setAdminError("فشل في تحميل البيانات.");
@@ -76,36 +79,30 @@ function Search() {
         setAdminLoading(false);
       }
     };
-
     fetchAllData();
   }, []);
 
   let firebasedata = [];
-
   if (serch && adminData.length) {
     const searchTerm = serch.toLowerCase();
-
     adminData.forEach((item) => {
+      // نفس المنطق الخاص بك للفنلرة
       switch (item._type) {
         case "compound": {
-          const compoundNameMatch =
+          if (
             item.compoundName?.en?.toLowerCase().includes(searchTerm) ||
-            item.compoundName?.ar?.toLowerCase().includes(searchTerm);
-          const districtMatch =
-            item.district?.en?.toLowerCase().includes(searchTerm) ||
-            item.district?.ar?.toLowerCase().includes(searchTerm);
-
-          if (compoundNameMatch || districtMatch) {
+            item.compoundName?.ar?.toLowerCase().includes(searchTerm) ||
+            item.district?.en?.toLowerCase().includes(searchTerm)
+          ) {
             firebasedata.push({
               label: item.compoundName[currentLang] || item.compoundName.en,
               subLabel: item.district?.[currentLang] || item.district?.en,
               type: "Compound",
-              link: `developers/${item.devId}/${item.id}`,
+              link: `/developers/${item.devId}/${item.id}`,
             });
           }
           break;
         }
-
         case "deals":
           if (
             item.compoundName?.en?.toLowerCase().includes(searchTerm) ||
@@ -114,11 +111,10 @@ function Search() {
             firebasedata.push({
               label: item.compoundName[currentLang] || item.compoundName.en,
               type: "Deal",
-              link: `maverickdeals/${item.id}`,
+              link: `/maverickdeals/${item.id}`,
             });
           }
           break;
-
         case "newLaunch":
           if (
             item.launchName?.en?.toLowerCase().includes(searchTerm) ||
@@ -127,11 +123,10 @@ function Search() {
             firebasedata.push({
               label: item.launchName[currentLang] || item.launchName.en,
               type: "New Launch",
-              link: ` newlaunches/${item.id}`,
+              link: `/newlaunches/${item.id}`,
             });
           }
           break;
-
         case "inventory":
           if (
             item.compoundName?.en?.toLowerCase().includes(searchTerm) ||
@@ -140,11 +135,10 @@ function Search() {
             firebasedata.push({
               label: item.compoundName[currentLang] || item.compoundName.en,
               type: "Inventory",
-              link: `developers/${item.devId}/${item.compoundId}/${item.id}`,
+              link: `/developers/${item.devId}/${item.compoundId}/${item.id}`,
             });
           }
           break;
-
         case "developer":
           if (
             item.devName?.en?.toLowerCase().includes(searchTerm) ||
@@ -154,11 +148,10 @@ function Search() {
               label: item.devName[currentLang] || item.devName.en,
               icon: item.devIcon,
               type: "Developer",
-              link: `developers/${item.id}`,
+              link: `/developers/${item.id}`,
             });
           }
           break;
-
         default:
           break;
       }
@@ -169,42 +162,21 @@ function Search() {
     <Stack
       component="form"
       sx={{
-        flexDirection: "column",
         width: "100%",
-        alignItems: "center",
-        paddingTop: "10px",
+        maxWidth: "600px", // تحديد عرض البحث ليكون متناسقاً
+        margin: "0 auto",
         position: "relative",
+        zIndex: 1000,
       }}
-      onSubmit={(e) => e.preventDefault()}
-    >
+      onSubmit={(e) => e.preventDefault()}>
       <TextField
-        className="header-search"
-        size="small"
-        sx={{
-          backgroundColor: "white",
-          width: "100%",
-          borderRadius: "10px",
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "50px",
-            height: "40px",
-            padding: "0 12px",
-            "& fieldset": {
-              border: "none",
-            },
-            "&:hover fieldset": {
-              border: "none",
-            },
-            "&.Mui-focused fieldset": {
-              border: "none",
-            },
-          },
-          "& .MuiOutlinedInput-input": {
-            padding: "10px 14px",
-          },
-        }}
-        id="search"
-        placeholder="Developers Or Area Or Compounds"
-        type="search"
+        fullWidth
+        placeholder={
+          currentLang === "ar"
+            ? "ابحث عن مطورين، مناطق، أو مشاريع..."
+            : "Search for developers, areas, or compounds..."
+        }
+        variant="outlined"
         onChange={(e) => {
           const val = e.target.value;
           if (val === "") {
@@ -215,69 +187,139 @@ function Search() {
             setMenu(true);
           }
         }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ color: "gray" }} />
+            </InputAdornment>
+          ),
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "30px",
+            backgroundColor: "#fff",
+            transition: "all 0.3s ease",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+            "&:hover": {
+              boxShadow: "0 6px 16px rgba(0,0,0,0.1)",
+            },
+            "&.Mui-focused": {
+              boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+              "& fieldset": { borderColor: "#1976d2", borderWidth: "1px" },
+            },
+            "& fieldset": { border: "1px solid #eee" },
+          },
+        }}
       />
-      <Stack className="searchBox" sx={{ display: !menu && "none" }}>
-        <Stack sx={{ width: "100%", gap: 1 }}>
+
+      {menu && (
+        <Paper
+          elevation={4}
+          sx={{
+            position: "absolute",
+            top: "110%",
+            left: 0,
+            right: 0,
+            maxHeight: "400px",
+            overflowY: "auto",
+            borderRadius: "15px",
+            padding: "8px",
+            backgroundColor: "rgba(255, 255, 255, 0.98)",
+            backdropFilter: "blur(10px)",
+          }}>
           {adminLoading ? (
-            <Typography>Loading...</Typography>
+            <Typography sx={{ p: 2, textAlign: "center" }}>
+              Loading...
+            </Typography>
           ) : firebasedata.length > 0 ? (
-            firebasedata.map((filter, index) => (
-              <a
-                className="searchLink"
+            firebasedata.map((item, index) => (
+              <Box
+                component="a"
+                href={item.link}
                 key={index}
-                onClick={() => setSerch(null)}
-                href={filter.link}
-              >
-                <Paper
-                  sx={{
-                    padding: "10px",
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                  }}
-                  elevation={3}
-                >
-                  {filter.icon && (
+                onClick={() => setMenu(false)}
+                sx={{
+                  textDecoration: "none",
+                  display: "block",
+                  mb: 0.5,
+                  borderRadius: "10px",
+                  transition: "0.2s",
+                  "&:hover": { backgroundColor: "#f5f5f5" },
+                }}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ p: 1.5 }}>
+                  {item.icon ? (
                     <img
-                      src={filter.icon}
+                      src={item.icon}
                       alt=""
                       style={{
-                        width: "50px",
-                        filter: "drop-shadow(0 0 10px rgba(0, 0, 0, .15))",
+                        width: 40,
+                        height: 40,
+                        borderRadius: "8px",
+                        objectFit: "contain",
                       }}
                     />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "8px",
+                        bgcolor: "#f0f0f0",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}>
+                      <SearchIcon fontSize="small" sx={{ color: "#ccc" }} />
+                    </Box>
                   )}
+
                   <Stack sx={{ flex: 1 }}>
-                    <Typography sx={{ fontWeight: "bold" }}>
-                      {filter.label}
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: 600,
+                        color: "#333",
+                        fontSize: "0.95rem",
+                      }}>
+                      {item.label}
                     </Typography>
-                    {filter.subLabel && (
-                      <Typography variant="caption" color="text.secondary">
-                        {filter.subLabel}
+                    {item.subLabel && (
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "text.secondary" }}>
+                        {item.subLabel}
                       </Typography>
                     )}
                   </Stack>
+
                   <Typography
                     variant="caption"
                     sx={{
-                      backgroundColor: "rgb(240, 240, 240)",
-                      padding: "1px 7px",
-                      borderRadius: "10px",
-                      color: "rgb(33, 36, 39)",
+                      bgcolor: "#e3f2fd",
+                      color: "#1976d2",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: "20px",
                       fontWeight: "bold",
-                    }}
-                  >
-                    {filter.type}
+                      fontSize: "0.7rem",
+                      textTransform: "uppercase",
+                    }}>
+                    {item.type}
                   </Typography>
-                </Paper>
-              </a>
+                </Stack>
+              </Box>
             ))
           ) : (
-            <Typography>Data Not Found!</Typography>
+            <Typography sx={{ p: 2, textAlign: "center", color: "gray" }}>
+              No results found
+            </Typography>
           )}
-        </Stack>
-      </Stack>
+        </Paper>
+      )}
     </Stack>
   );
 }

@@ -281,7 +281,7 @@ function SahelForm() {
   const handleDateChange = useCallback((key, value) => {
     setNewData((prev) => ({
       ...prev,
-      [key]: value ? value.toISOString() : null, // نحول التاريخ إلى نص علشان يتسجل في Firestore
+      [key]: value && value.isValid() ? value.toISOString() : null,
     }));
   }, []);
 

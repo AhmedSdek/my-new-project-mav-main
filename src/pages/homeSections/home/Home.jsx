@@ -36,8 +36,7 @@ function Home() {
           minHeight: "400px",
           // overflow: "hidden",
         }}
-        className="home-header"
-      >
+        className="home-header">
         <img
           src="/im.webp"
           srcSet={`${imSmallWebp} 600w, ${imLargeWebp} 1200w`}
@@ -57,21 +56,18 @@ function Home() {
 
         <div
           className="header-main"
-          style={{ textAlign: "start", width: "40%", margin: "35px auto 0" }}
-        >
+          style={{ textAlign: "start", width: "40%", margin: "35px auto 0" }}>
           <h1
             className="hed1"
-            style={{ color: "white", lineHeight: "1.8", width: "fit-content" }}
-          >
+            style={{ color: "white", lineHeight: "1.8", width: "fit-content" }}>
             <mark
               style={{
                 backgroundColor: "rgb(255 145 77 / 87%)",
                 borderRadius: "6px",
                 fontWeight: "bold",
                 color: "#1e4164",
-              }}
-            >
-              {lang === "ar" ? "دعنا" : "Let us"}
+              }}>
+              {lang === "ar" ? "" : "Let us"}
             </mark>
           </h1>
           <h2
@@ -81,9 +77,8 @@ function Home() {
               fontWeight: "bold",
               margin: "0",
               fontSize: "40px",
-            }}
-          >
-            {lang === "ar" ? "نساعدك في" : "Help You To Make"}
+            }}>
+            {lang === "ar" ? "" : "Help You To Make"}
           </h2>
           <h2
             className="hed3"
@@ -93,9 +88,8 @@ function Home() {
               color: "white",
               margin: "5px 0 0 0",
               fontSize: "40px",
-            }}
-          >
-            {lang === "ar" ? "الحركه" : "The Move"}
+            }}>
+            {lang === "ar" ? "" : "The Move"}
           </h2>
 
           <Suspense fallback={<div style={{ color: "white" }}>Loading...</div>}>
@@ -112,12 +106,10 @@ function Home() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-            }}
-          >
+            }}>
             <MavLoading />
           </div>
-        }
-      >
+        }>
         <SahelMap />
         <CityscapeHome />
         <NorthCoastProjects />
@@ -132,8 +124,6 @@ function Home() {
           />
         </Stack>
       </Suspense>
-
-      <Calc />
     </div>
   );
 }

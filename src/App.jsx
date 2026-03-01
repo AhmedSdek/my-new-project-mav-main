@@ -13,6 +13,7 @@ import Navs from "./comp/Nave";
 import Footer from "./comp/Footer";
 import ScrollToTop from "./comp/ScrollToTop";
 import MavLoading from "./comp/Loading/MavLoading";
+import Calc from "./pages/homeSections/Calc/Calc";
 
 // 🌀 Lazy imports
 const Dashboard = lazy(() => import("./comp/admin/Dashboard"));
@@ -142,19 +143,6 @@ function App() {
         <Navs />
         <ToastContainer />
         <ScrollToTop />
-        {/* <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: {
-              xs: "calc(100vh - 160px)",
-              sm: "calc(100vh - 100px)",
-            },
-          }}
-        >
-          <MavLoading />
-        </Box> */}
         <Suspense
           fallback={
             <Box
@@ -166,12 +154,10 @@ function App() {
                   xs: "calc(100vh - 160px)",
                   sm: "calc(100vh - 100px)",
                 },
-              }}
-            >
+              }}>
               <MavLoading />
             </Box>
-          }
-        >
+          }>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="dashboard" element={<Dashboard />}>
@@ -256,6 +242,7 @@ function App() {
           </Routes>
         </Suspense>
         <Footer />
+        <Calc />
       </Box>
     </ThemeProvider>
   );

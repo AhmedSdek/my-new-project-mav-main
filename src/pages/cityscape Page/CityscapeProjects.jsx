@@ -9,40 +9,48 @@ import {
   IconButton,
   Stack,
   TextField,
-  Tooltip,
   Typography,
+  Paper,
+  Avatar,
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
-
 import React, { useEffect, useState } from "react";
-import { useCollection } from "react-firebase-hooks/firestore";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import MavLoading from "../../comp/Loading/MavLoading";
 import { Col, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css"; // تأكد من استيراد الـ CSS الخاص بالمكتبة
 import ContactUsBtn from "../../comp/Contact Us/ContactUsBtn";
 import { useTranslation } from "react-i18next";
 import { useGlobal } from "../../context/GlobalContext";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+
 function CityscapeProjects() {
-  const [hiden, setHiden] = useState("hiden");
-  const [projectName, setProjectName] = useState("");
-  const [devName, setDevName] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [countryCode, setCountryCode] = React.useState("eg");
-  const [phone, setPhone] = React.useState("");
-  const [message, setMessage] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [selectedProject, setSelectedProject] = useState({
+    name: "",
+    developer: "",
+  });
+
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    message: "",
+    email: "",
+  });
+
   const [city, setCity] = useState([]);
-  console.log(city);
   const { i18n } = useTranslation();
   const lang = i18n.language;
+  const isAr = lang === "ar";
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { country } = useGlobal();
+
   useEffect(() => {
     const fetchCity = async () => {
+      setLoading(true);
       try {
         const q = query(
           collection(db, "cityscape"),
@@ -55,400 +63,344 @@ function CityscapeProjects() {
         }));
         setCity(dealsData);
       } catch (err) {
-        setError(err.message);
+        console.error("Error fetching cityscape:", err);
       } finally {
         setLoading(false);
       }
     };
     fetchCity();
   }, [country]);
+
+  const handleOpenForm = (project) => {
+    setSelectedProject({
+      name: project.cityscapeName,
+      developer: project.developer.devName,
+    });
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setFormData({ name: "", phone: "", message: "", email: "" });
+  };
+
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "calc(100vh - 100px)",
-        }}
-      >
-        <MavLoading />
-      </div>
-    );
-  }
-  return (
-    <Stack
-      sx={{ minHeight: "100vh ", position: "relative", marginTop: "58px" }}
-    >
-      <Container>
-        <Stack>
-          <Stack
-            sx={{
-              flexDirection: { xs: "column", sm: "row" },
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              padding: "10px 0",
-            }}
-          >
-            <div className="header">
-              <h1
-                style={{
-                  // letterSpacing: '0px',
-                  fontFamily: "materialBold",
-                  fontSize: "20px",
-                  color: "rgb(30, 65, 100)",
-                  textTransform: "uppercase",
-                  letterSpacing: "4.14px",
-                }}
-              >
-                Explore all
-                <span
-                  style={{
-                    color: "rgb(255 110 25)",
-                    fontSize: "40px",
-                    verticalAlign: "middle",
-                    letterSpacing: "0px",
-                  }}
-                >
-                  market offers
-                </span>
-              </h1>
-              <h2
-                style={{
-                  textTransform: "uppercase",
-                  letterSpacing: "2.34px",
-                  color: "rgb(100, 100, 100)",
-                  fontSize: "18px",
-                }}
-              >
-                Be The First One To Get Offers
-              </h2>
-            </div>
-            <Stack
-              sx={{
-                backgroundColor: "#edf0f0",
-                gap: 1,
-                color: "#1e4164",
-                padding: "10px",
-                borderRadius: "10px",
-                alignItems: "center",
-                margin: "10px 0",
-                width: { lg: "30%", md: "40%" },
-              }}
-            >
-              <Typography sx={{ fontWeight: "bold", textAlign: "center" }}>
-                Get Offer
-              </Typography>
-              <ContactUsBtn sectionName="Market-Offers" />
-            </Stack>
-          </Stack>
-          <Row>
-            {city.map((project, index) => {
-              return (
-                <Col
-                  className=" col-sm-6 col-12 col-lg-4 col-md-6"
-                  style={{
-                    marginBottom: "15px",
-                    position: "relative",
-                    maxHeight: "300px",
-                  }}
-                  key={index}
-                >
-                  <Card
-                    sx={{
-                      padding: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      backgroundColor: "#f6f7f7",
-                      position: "relative",
-                      overflow: "initial",
-                      gap: 2,
-                      height: "100%",
-                    }}
-                  >
-                    <Stack
-                      className="colDev"
-                      sx={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 2,
-                        width: "100%",
-                      }}
-                    >
-                      <Link to={`/developers/${project.devId}`}>
-                        <img
-                          className=" img shadow-filter "
-                          style={{
-                            width: "60px",
-                            height: "60px",
-                            borderRadius: "50%",
-                          }}
-                          src={project.devIcon}
-                          alt={project.developer.devName[lang]}
-                        />
-                      </Link>
-                      <Stack>
-                        <Typography sx={{ fontWeight: "bold" }}>
-                          {project.cityscapeName[lang]}
-                        </Typography>
-                        <Typography variant="caption">
-                          {project.developer.devName[lang]}
-                        </Typography>
-                        <Typography variant="caption">
-                          {project.Location[lang]}
-                        </Typography>
-                      </Stack>
-                    </Stack>
-
-                    <Stack sx={{ gap: 2, alignItems: "center", width: "100%" }}>
-                      <Stack
-                        divider={
-                          <Divider
-                            sx={{
-                              borderColor: "black",
-                              opacity: "1",
-                              borderWidth: "1px",
-                              height: "100%",
-                            }}
-                          />
-                        }
-                        sx={{
-                          flexDirection: "row",
-                          width: "100%",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Stack
-                          sx={{ padding: "5px 10px ", alignItems: "center" }}
-                        >
-                          <Typography
-                            sx={{
-                              fontWeight: "bold",
-                              color: "#ff914d",
-                              fontSize: "20px",
-                            }}
-                          >
-                            {`${project.downPayment}%`}
-                          </Typography>
-                          <Typography>Downpayment</Typography>
-                        </Stack>
-
-                        <Stack
-                          sx={{ padding: "5px 10px ", alignItems: "center" }}
-                        >
-                          <Typography
-                            sx={{
-                              fontWeight: "bold",
-                              color: "#ff914d",
-                              fontSize: "20px",
-                            }}
-                          >
-                            {`${project.years} Years`}
-                          </Typography>
-                          <Typography>Installments</Typography>
-                        </Stack>
-                      </Stack>
-                      {project.cashDiscount ? (
-                        <Stack sx={{ flexDirection: "row", gap: 1 }}>
-                          <Typography
-                            sx={{ fontWeight: "bold", fontSize: "20px" }}
-                          >
-                            Cash Discount
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontWeight: "bold",
-                              color: "#ff914d",
-                              fontSize: "20px",
-                            }}
-                          >
-                            {`${project.cashDiscount}%`}
-                          </Typography>
-                        </Stack>
-                      ) : (
-                        <ReactMarkdown>
-                          {project.discription[lang]}
-                        </ReactMarkdown>
-                      )}
-                    </Stack>
-                    <Divider
-                      sx={{
-                        borderColor: "white",
-                        opacity: "1",
-                        borderWidth: "1px",
-                        width: "100%",
-                        borderStyle: "dashed",
-                      }}
-                    />
-                    <Stack sx={{ width: "100%", flexDirection: "row", gap: 1 }}>
-                      <Button
-                        onClick={() => {
-                          setProjectName(project.cityscapeName);
-                          setDevName(project.developer.devName);
-                          setHiden("show");
-                        }}
-                        sx={{
-                          width: "100%",
-                          backgroundColor: "#ff914d",
-                          fontWeight: "bold",
-                        }}
-                        variant="contained"
-                      >
-                        Get Offer
-                      </Button>
-                    </Stack>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-          <Divider sx={{ opacity: "1", borderWidth: "1px" }} />
-        </Stack>
-      </Container>
-
       <Stack
         sx={{
-          width: "100%",
-          height: "calc(100vh - 58px)",
-          position: "fixed",
-          display: "flex",
-          alignItems: "center",
-          zIndex: "100000",
+          height: "100vh",
           justifyContent: "center",
-          backgroundColor: "rgb(0 0 0 / 59%)",
-        }}
-        className={hiden}
-      >
-        <Card
-          sx={{
-            width: { sm: "80%", xs: "95%" },
-            position: "relative",
-            padding: "20px",
-            flexDirection: "column",
-            borderRadius: "10px",
-            overflow: "auto",
-            height: "80%",
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", textAlign: "center" }}
-          >
-            Complete the Form
-          </Typography>
-          <Divider
-            sx={{
-              borderColor: "black",
-              width: "40%",
-              margin: "10px auto",
-              opacity: "1",
-            }}
-          />
-          <Stack
-            component="form"
-            sx={{
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <TextField
-              sx={{ margin: "10px", width: "100%" }}
-              id="ProjectName"
-              label=" Project Name"
-              variant="outlined"
-              type="text"
-              value={projectName[lang]}
-              disabled
-              InputLabelProps={{ shrink: true }}
-            />
-
-            <TextField
-              sx={{ margin: "10px", width: "100%" }}
-              id="devname"
-              label="Developer Name"
-              variant="outlined"
-              type="text"
-              value={devName[lang]}
-              InputLabelProps={{ shrink: true }}
-              disabled
-            />
-
-            <TextField
-              sx={{ margin: "10px", width: "100%" }}
-              required
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-              id="name"
-              label="Your Name"
-              variant="outlined"
-              type="text"
-              value={name}
-            />
-
-            <Box sx={{ width: { xs: "100%", md: "100%" }, padding: "5px" }}>
-              <PhoneInput
-                inputProps={{ required: true }}
-                country={countryCode}
-                value={phone}
-                onChange={(value) => {
-                  setPhone(value);
-                }}
-                countryCodeEditable={false}
-              />
-            </Box>
-            <TextField
-              id="message"
-              label="message"
-              multiline
-              value={message}
-              rows={4}
-              sx={{ margin: "10px", width: "100%" }}
-              onChange={(e) => {
-                setMessage(e.target.value);
-              }}
-            />
-            <Button
-              variant="contained"
-              sx={{ width: "150px" }}
-              type="submit"
-              disabled={name.length <= 0 || phone.length <= 2}
-            >
-              <a
-                style={{ width: "100%" }}
-                target="_blank"
-                href={`https://wa.me/+201008582515?text=Section%20Name%20:%20Market-Offers%0AProject%20Name%20:%20${projectName}%0ADeveloper%20Name%20:%20${devName}%0AName%20:%20${name}${
-                  email && `%0AEmail%20:%20${email}`
-                }%0APhone%20Number%20:%20${phone}${
-                  message && `%0AMessage%20:%20${message}`
-                }`}
-              >
-                Send
-              </a>
-            </Button>
-          </Stack>
-          <IconButton
-            sx={{ position: "absolute", top: "10px", right: "10px" }}
-            onClick={() => {
-              setHiden("hiden");
-              setName("");
-              setPhone("+20");
-              setMessage("");
-              setEmail("");
-            }}
-          >
-            <Close />
-          </IconButton>
-        </Card>
+          alignItems: "center",
+        }}>
+        <MavLoading />
       </Stack>
-    </Stack>
+    );
+  }
+
+  return (
+    <Box sx={{ minHeight: "100vh", bgcolor: "#f9f9f9", pt: "80px", pb: 5 }}>
+      <Container>
+        {/* Header Section */}
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 6, textAlign: { xs: "center", md: "left" } }}>
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#1e4164",
+                letterSpacing: 3,
+                fontWeight: "bold",
+                textTransform: "uppercase",
+              }}>
+              {isAr ? "استكشف كل" : "Explore all"}
+            </Typography>
+            <Typography
+              variant="h2"
+              sx={{ color: "#ff6e19", fontWeight: 900, lineHeight: 1 }}>
+              {isAr ? "عروض السوق" : "market offers"}
+            </Typography>
+            <Typography variant="body1" sx={{ color: "text.secondary", mt: 1 }}>
+              {isAr
+                ? "كن أول من يحصل على العروض الحصرية"
+                : "Be The First One To Get Exclusive Offers"}
+            </Typography>
+          </Box>
+
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              bgcolor: "white",
+              borderRadius: "20px",
+              border: "1px solid #eee",
+              mt: { xs: 3, md: 0 },
+              minWidth: { md: "300px" },
+              textAlign: "center",
+            }}>
+            <Typography sx={{ fontWeight: "bold", mb: 2, color: "#1e4164" }}>
+              {isAr ? "احصل على العرض العام" : "Get General Offer"}
+            </Typography>
+            <ContactUsBtn sectionName="Market-Offers" />
+          </Paper>
+        </Stack>
+
+        {/* Projects Grid */}
+        <Row>
+          {city.map((project, index) => (
+            <Col
+              key={index}
+              lg={4}
+              md={6}
+              sm={6}
+              xs={12}
+              style={{ marginBottom: "30px" }}>
+              <Card
+                elevation={0}
+                sx={{
+                  borderRadius: "24px",
+                  p: 3,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  border: "1px solid #eee",
+                  transition: "0.3s",
+                  "&:hover": {
+                    boxShadow: "0 15px 30px rgba(0,0,0,0.05)",
+                    transform: "translateY(-5px)",
+                  },
+                }}>
+                {/* Dev Info */}
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 3 }}>
+                  <Link to={`/developers/${project.devId}`}>
+                    <Avatar
+                      src={project.devIcon}
+                      sx={{
+                        width: 60,
+                        height: 60,
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                  </Link>
+                  <Box>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#1e4164",
+                        fontSize: "1.1rem",
+                      }}>
+                      {project.cityscapeName[lang]}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      display="block"
+                      sx={{ color: "text.secondary", fontWeight: 600 }}>
+                      {project.developer.devName[lang]}
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={0.5}>
+                      <LocationOnIcon
+                        sx={{ fontSize: "0.9rem", color: "#ff6e19" }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "text.secondary" }}>
+                        {project.Location[lang]}
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </Stack>
+
+                {/* Offer Details */}
+                <Box
+                  sx={{
+                    bgcolor: "#f0f4f8",
+                    borderRadius: "16px",
+                    p: 2,
+                    mb: 3,
+                  }}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-around"
+                    divider={<Divider orientation="vertical" flexItem />}>
+                    <Box textAlign="center">
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          color: "#ff6e19",
+                          fontSize: "1.2rem",
+                        }}>
+                        {project.downPayment}%
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        {isAr ? "مقدم" : "Downpayment"}
+                      </Typography>
+                    </Box>
+                    <Box textAlign="center">
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          color: "#ff6e19",
+                          fontSize: "1.2rem",
+                        }}>
+                        {project.years}
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        {isAr ? "سنين" : "Years"}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+
+                <Box sx={{ flexGrow: 1, mb: 3 }}>
+                  {project.cashDiscount ? (
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      justifyContent="center"
+                      sx={{
+                        color: "#2e7d32",
+                        bgcolor: "#e8f5e9",
+                        py: 1,
+                        borderRadius: "8px",
+                      }}>
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        {isAr ? "خصم الكاش" : "Cash Discount"}
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                        {project.cashDiscount}%
+                      </Typography>
+                    </Stack>
+                  ) : (
+                    <Box sx={{ fontSize: "0.9rem", color: "text.secondary" }}>
+                      <ReactMarkdown>{project.discription[lang]}</ReactMarkdown>
+                    </Box>
+                  )}
+                </Box>
+
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={() => handleOpenForm(project)}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.5,
+                    fontWeight: "bold",
+                    bgcolor: "#1e4164",
+                    "&:hover": { bgcolor: "#ff6e19" },
+                  }}>
+                  {isAr ? "احصل على العرض" : "Get Offer"}
+                </Button>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Container>
+
+      {/* Form Overlay Popup */}
+      {showForm && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            bgcolor: "rgba(0,0,0,0.7)",
+            zIndex: 10000,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backdropFilter: "blur(4px)",
+          }}>
+          <Card
+            sx={{
+              width: { xs: "90%", sm: "500px" },
+              borderRadius: "24px",
+              position: "relative",
+              p: 4,
+            }}>
+            <IconButton
+              onClick={handleCloseForm}
+              sx={{ position: "absolute", top: 15, right: 15 }}>
+              <Close />
+            </IconButton>
+
+            <Typography
+              variant="h5"
+              textAlign="center"
+              sx={{ fontWeight: 800, color: "#1e4164", mb: 1 }}>
+              {isAr ? "أكمل البيانات للحصول على العرض" : "Complete the Form"}
+            </Typography>
+            <Typography
+              variant="body2"
+              textAlign="center"
+              color="text.secondary"
+              sx={{ mb: 3 }}>
+              {selectedProject.name[lang]} - {selectedProject.developer[lang]}
+            </Typography>
+
+            <Stack spacing={2}>
+              <TextField
+                fullWidth
+                label={isAr ? "الاسم" : "Your Name"}
+                variant="filled"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+              />
+              <Box>
+                <PhoneInput
+                  country={"eg"}
+                  value={formData.phone}
+                  onChange={(val) => setFormData({ ...formData, phone: val })}
+                  containerStyle={{ width: "100%" }}
+                  inputStyle={{
+                    width: "100%",
+                    height: "55px",
+                    background: "#f0f2f5",
+                  }}
+                />
+              </Box>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label={isAr ? "رسالة إضافية (اختياري)" : "Message (Optional)"}
+                variant="filled"
+                value={formData.message}
+                onChange={(e) =>
+                  setFormData({ ...formData, message: e.target.value })
+                }
+              />
+
+              <Button
+                variant="contained"
+                size="large"
+                disabled={!formData.name || formData.phone.length < 10}
+                href={`https://wa.me/+201008582515?text=Section%20Name%20:%20Market-Offers%0AProject%20Name%20:%20${selectedProject.name[lang]}%0ADeveloper%20Name%20:%20${selectedProject.developer[lang]}%0AName%20:%20${formData.name}%0APhone%20Number%20:%20${formData.phone}%0AMessage%20:%20${formData.message}`}
+                target="_blank"
+                sx={{
+                  bgcolor: "#ff6e19",
+                  py: 2,
+                  borderRadius: "12px",
+                  fontWeight: "bold",
+                }}>
+                {isAr ? "إرسال عبر واتساب" : "Send via WhatsApp"}
+              </Button>
+            </Stack>
+          </Card>
+        </Box>
+      )}
+    </Box>
   );
 }
 

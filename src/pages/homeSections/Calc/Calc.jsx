@@ -1,286 +1,264 @@
-import { Calculate, Close, Save } from "@mui/icons-material";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Button,
-  Card,
-  Container,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Divider,
-  IconButton,
+  Stack,
+  TextField,
+  Typography,
   Slide,
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
-  Stack,
-  TextField,
-  Typography,
+  Grid,
+  Paper,
 } from "@mui/material";
-import React, { useState } from "react";
-import { Col, Row } from "react-bootstrap";
+import {
+  Calculate,
+  AccountBalanceWallet,
+  CalendarMonth,
+  Handyman,
+  QueryBuilder,
+  EventNote,
+} from "@mui/icons-material";
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
-function Calc() {
-  const [openCalc, setOpenCalc] = useState(false);
-  const [total, setTotal] = useState("");
-  const [downPayment, setDownPayment] = useState("");
-  const [maintenance, setMaintenance] = useState("");
-  const [years, setYears] = useState("");
-  const [maintenanceres, setMaintenanceres] = useState(0);
-  const [amount, setAmount] = useState(0);
-  const [open, setOpen] = React.useState(false);
-  const [openDilo, setOpenDilo] = React.useState(false);
-  const [month, setMonth] = useState(0);
-  const actions = [
-    { icon: <Calculate />, name: "Calculator" },
-    { icon: <Save />, name: "Save" },
-  ];
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
-  const handleClickOpen = () => {
-    setOpenDilo(true);
+// مكون فرعي لعرض النتائج بشكل أنيق
+const ResultCard = ({ label, value, icon, color = "#1e4164" }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      p: 2,
+      bgcolor: "#f8f9fa",
+      borderRadius: 3,
+      border: "1px solid #edf2f7",
+      height: "100%",
+    }}>
+    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+      {icon}
+      <Typography variant="caption" fontWeight="bold" color="text.secondary">
+        {label}
+      </Typography>
+    </Stack>
+    <Typography variant="body1" fontWeight="800" color={color}>
+      {Number(value).toLocaleString()}{" "}
+      <small style={{ fontSize: "10px" }}>EGP</small>
+    </Typography>
+  </Paper>
+);
+
+function Calc() {
+  const [open, setOpen] = useState(false);
+  const [openDilo, setOpenDilo] = useState(false);
+
+  // States للمدخلات
+  const [values, setValues] = useState({
+    total: "",
+    downPayment: "",
+    maintenance: "",
+    years: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
   };
-  const handleCloseDilo = () => setOpenDilo(false);
+
+  // حساب النتائج تلقائياً عند تغيير المدخلات
+  const results = useMemo(() => {
+    const total = parseFloat(values.total) || 0;
+    const dpPercent = parseFloat(values.downPayment) || 0;
+    const maintPercent = parseFloat(values.maintenance) || 0;
+    const yrs = parseFloat(values.years) || 0;
+
+    const dpAmount = (total * dpPercent) / 100;
+    const maintAmount = (total * maintPercent) / 100;
+    const remaining = total - dpAmount;
+    const monthly = yrs > 0 ? remaining / (yrs * 12) : 0;
+
+    return {
+      dpAmount,
+      monthly,
+      quarterly: monthly * 3,
+      annual: monthly * 12,
+      maintAmount,
+    };
+  }, [values]);
+
+  const handleReset = () => {
+    setValues({ total: "", downPayment: "", maintenance: "", years: "" });
+    setOpenDilo(false);
+  };
+
   return (
     <>
-      <Box
-        sx={{
-          height: 320,
-          transform: "translateZ(0px)",
-          flexGrow: 1,
-          position: "fixed",
-          bottom: "85px",
-          right: "5px",
-          zIndex: "100",
-        }}
-      >
-        <SpeedDial
-          ariaLabel="SpeedDial controlled open example"
-          sx={{ position: "absolute", bottom: 16, right: 1 }}
-          className="calc-icon"
-          icon={<SpeedDialIcon />}
-          onClose={handleClose}
-          onOpen={handleOpen}
-          open={open}
-        >
-          <SpeedDialAction
-            icon={<Calculate />}
-            tooltipTitle="Calculator"
-            onClick={() => setOpenDilo(true)}
-          />
-        </SpeedDial>
-      </Box>
+      {/* Floating SpeedDial */}
+      <SpeedDial
+        ariaLabel="Calculator Dial"
+        sx={{ position: "fixed", bottom: 20, right: 20 }}
+        icon={<SpeedDialIcon openIcon={<Calculate />} />}
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
+        open={open}>
+        <SpeedDialAction
+          icon={<Calculate />}
+          tooltipTitle="Budget Calculator"
+          onClick={() => setOpenDilo(true)}
+        />
+      </SpeedDial>
+
       <Dialog
         open={openDilo}
-        slots={{
-          transition: Transition,
-        }}
+        TransitionComponent={Transition}
         keepMounted
-        onClose={handleCloseDilo}
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <DialogTitle>{"Budget Calculator"}</DialogTitle>
-        <DialogContent>
-          <Stack
-            component="form"
-            sx={{ gap: 1, alignItems: "center", marginBottom: "10px" }}
-            onSubmit={async (e) => {
-              e.preventDefault();
-            }}
-          >
-            <Stack
-              sx={{
-                flexDirection: { xs: "column", sm: "row" },
-                width: "100%",
-                gap: 1,
-              }}
-            >
-              <TextField
-                sx={{ width: "100%" }}
-                required
-                id="outlined-required"
-                label="Total Budget"
-                type="number"
-                placeholder="EGP"
-                value={total}
-                className="inbutlapel
-                                        "
-                size="small"
-                onChange={(e) => setTotal(e.target.value)}
-              />
-              <TextField
-                sx={{ width: "100%" }}
-                id="maintenance"
-                label="Maintenance"
-                type="number"
-                placeholder="%"
-                value={maintenance}
-                className="inbutlapel
-                                        "
-                size="small"
-                onChange={(e) => setMaintenance(e.target.value)}
-              />
-            </Stack>
-            <Stack
-              sx={{
-                flexDirection: { xs: "column", sm: "row" },
-                width: "100%",
-                gap: 1,
-              }}
-            >
-              <TextField
-                sx={{ width: "100%" }}
-                required
-                id="downPayment"
-                placeholder="%"
-                label="Down Payment"
-                type="number"
-                size="small"
-                className="inbutlapel
-                                            "
-                value={downPayment}
-                onChange={(e) => setDownPayment(e.target.value)}
-              />
-              <TextField
-                sx={{ width: "100%" }}
-                required
-                id="years"
-                size="small"
-                className="inbutlapel"
-                label="years Of Installments"
-                type="number"
-                placeholder="0"
-                value={years}
-                onChange={(e) => setYears(e.target.value)}
-              />
-            </Stack>
-          </Stack>
-          <Divider />
-          <Container>
-            <Row style={{ padding: "5px" }}>
-              <Col className="col-lg-6 col-md-6 col-sm-6 col-12">
-                <Box sx={{ fontWeight: "bold" }}>
-                  Down Paymant Amount
-                  <Typography
-                    sx={{
-                      padding: "2px 10px",
-                      borderRadius: "10px",
-                      backgroundColor: "#0d4d8f2e",
-                      color: "rgb(255 110 25)",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {amount} EGP
-                  </Typography>
-                </Box>
-              </Col>
-              <Col className="col-lg-6 col-md-6 col-sm-6 col-12">
-                <Box sx={{ fontWeight: "bold" }}>
-                  Monthly Paymant
-                  <Typography
-                    sx={{
-                      padding: "2px 10px",
-                      borderRadius: "10px",
-                      backgroundColor: "#0d4d8f2e",
-                      color: "rgb(255 110 25)",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {month} EGP
-                  </Typography>
-                </Box>
-              </Col>
-              <Col className="col-lg-6 col-md-6 col-sm-6 col-12">
-                <Box sx={{ fontWeight: "bold" }}>
-                  Quarterly payment
-                  <Typography
-                    sx={{
-                      padding: "2px 10px",
-                      borderRadius: "10px",
-                      backgroundColor: "#0d4d8f2e",
-                      color: "rgb(255 110 25)",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {month * 3} EGP
-                  </Typography>
-                </Box>
-              </Col>
-              <Col className="col-lg-6 col-md-6 col-sm-6 col-12">
-                <Box sx={{ fontWeight: "bold" }}>
-                  Annual payment
-                  <Typography
-                    sx={{
-                      padding: "2px 10px",
-                      borderRadius: "10px",
-                      backgroundColor: "#0d4d8f2e",
-                      color: "rgb(255 110 25)",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {month * 12} EGP
-                  </Typography>
-                </Box>
-              </Col>
-              <Col className="col-lg-6 col-md-6 col-sm-6 col-12">
-                <Box sx={{ fontWeight: "bold" }}>
-                  Maintenance
-                  <Typography
-                    sx={{
-                      padding: "2px 10px",
-                      borderRadius: "10px",
-                      backgroundColor: "#0d4d8f2e",
-                      color: "rgb(255 110 25)",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {maintenanceres} EGP
-                  </Typography>
-                </Box>
-              </Col>
-            </Row>
-          </Container>
-        </DialogContent>
-        <DialogActions sx={{ gap: 2, justifyContent: "space-evenly" }}>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => {
-              setOpenDilo(false);
-              setTotal("");
-              setDownPayment("");
-              setYears("");
-              setMaintenance("");
-              setAmount(0);
-              setMonth(0);
-              setMaintenanceres(0);
-            }}
-          >
-            Cancel
-          </Button>
+        onClose={() => setOpenDilo(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 4, p: 1 } }}>
+        <DialogTitle
+          sx={{
+            fontWeight: "bold",
+            color: "#1e4164",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}>
+          <Calculate color="primary" /> Budget Calculator
+        </DialogTitle>
 
+        <DialogContent dividers>
+          {/* Input Section */}
+          <Grid container spacing={2} sx={{ mb: 3, mt: 0.5 }}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Total Budget"
+                name="total"
+                type="number"
+                variant="outlined"
+                size="small"
+                value={values.total}
+                onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Maintenance (%)"
+                name="maintenance"
+                type="number"
+                variant="outlined"
+                size="small"
+                value={values.maintenance}
+                onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Down Payment (%)"
+                name="downPayment"
+                type="number"
+                variant="outlined"
+                size="small"
+                value={values.downPayment}
+                onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Installment Years"
+                name="years"
+                type="number"
+                variant="outlined"
+                size="small"
+                value={values.years}
+                onChange={handleInputChange}
+              />
+            </Grid>
+          </Grid>
+
+          <Divider sx={{ mb: 2 }}>
+            <Typography
+              variant="caption"
+              color="text.disabled"
+              fontWeight="bold">
+              CALCULATION RESULTS
+            </Typography>
+          </Divider>
+
+          {/* Results Display Section */}
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <ResultCard
+                label="Down Payment"
+                value={results.dpAmount}
+                icon={
+                  <AccountBalanceWallet
+                    fontSize="small"
+                    sx={{ color: "#ff6e19" }}
+                  />
+                }
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <ResultCard
+                label="Maintenance"
+                value={results.maintAmount}
+                icon={<Handyman fontSize="small" sx={{ color: "#ff6e19" }} />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <ResultCard
+                label="Monthly"
+                value={results.monthly.toFixed(0)}
+                icon={
+                  <CalendarMonth fontSize="small" sx={{ color: "#1e4164" }} />
+                }
+              />
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <ResultCard
+                label="Quarterly"
+                value={results.quarterly.toFixed(0)}
+                icon={
+                  <QueryBuilder fontSize="small" sx={{ color: "#1e4164" }} />
+                }
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <ResultCard
+                label="Annual"
+                value={results.annual.toFixed(0)}
+                icon={<EventNote fontSize="small" sx={{ color: "#1e4164" }} />}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={handleReset} color="inherit" variant="text">
+            Clear & Close
+          </Button>
           <Button
-            onClick={() => {
-              setAmount((total * downPayment) / 100);
-              setMonth((total - (total * downPayment) / 100) / (years * 12));
-              setMaintenanceres((total * maintenance) / 100);
-            }}
-            className="calcbtn"
-            type="submit"
+            onClick={() => setOpenDilo(false)}
             variant="contained"
             sx={{
-              width: "150px",
-              backgroundColor: "rgb(255 110 25)",
-              color: "rgb(30, 65, 100)",
+              bgcolor: "#ff6e19",
+              "&:hover": { bgcolor: "#e65a00" },
+              borderRadius: 2,
+              px: 4,
               fontWeight: "bold",
-            }}
-          >
-            Calc
+            }}>
+            Done
           </Button>
         </DialogActions>
       </Dialog>

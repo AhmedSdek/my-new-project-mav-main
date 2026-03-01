@@ -7,7 +7,6 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { useDocument } from "react-firebase-hooks/firestore";
 import { db } from "../../firebase/config";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -18,6 +17,8 @@ import {
   Divider,
   Stack,
   Typography,
+  Avatar,
+  Paper,
 } from "@mui/material";
 import { Col, Row } from "react-bootstrap";
 import ContactUsIcon from "../../comp/Contact Us/ContactUsIcon";
@@ -32,22 +33,22 @@ export default function DeveloperDetails() {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const { country } = useGlobal();
-  // console.log(country);
-  // console.log(devId);
-  const [developer, setDeveloper] = useState({});
+
+  const [developer, setDeveloper] = useState(null);
   const [compounds, setCompounds] = useState([]);
-  console.log(developer);
+  console.log(compounds);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [loadingcompound, setLoadingcompound] = useState(true);
-  const [errorcompound, setErrorcompound] = useState(null);
+
   useEffect(() => {
     const fetchDeveloper = async () => {
       try {
         const docRef = doc(db, "developer", devId);
         const docSnap = await getDoc(docRef);
-        console.log(docSnap);
-        setDeveloper({ id: docSnap.id, ...docSnap.data() });
+        if (docSnap.exists()) {
+          setDeveloper({ id: docSnap.id, ...docSnap.data() });
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -55,236 +56,326 @@ export default function DeveloperDetails() {
       }
     };
     fetchDeveloper();
-  }, []);
+  }, [devId]);
+
   useEffect(() => {
     const fetchcompounds = async () => {
+      if (!country) return;
       try {
+        setLoadingcompound(true);
         const q = query(
           collection(db, "compound"),
           where("countryKey", "==", country.en),
           where("devId", "==", devId)
         );
         const snapshot = await getDocs(q);
-        // console.log(snapshot);
         const compoundsData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setCompounds(compoundsData);
       } catch (err) {
-        setErrorcompound(err.message);
+        console.error(err);
       } finally {
         setLoadingcompound(false);
       }
     };
     fetchcompounds();
   }, [devId, country]);
-  if (error) return <p>حدث خطأ: {error}</p>;
+
   if (loading) {
     return (
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "calc(100vh - 100px)",
-        }}
-      >
+          height: "100vh",
+        }}>
         <MavLoading />
-      </div>
+      </Box>
     );
   }
+
+  if (error)
+    return (
+      <Typography color="error" textAlign="center" sx={{ mt: 10 }}>
+        Error: {error}
+      </Typography>
+    );
+
   return (
-    <Box sx={{ padding: "80px 0 0 0", minHeight: "calc(100vh - 100px)" }}>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "calc(100vh - 100px)",
-          }}
-        >
-          <MavLoading />
-        </div>
-      ) : developer ? (
+    <Box sx={{ backgroundColor: "#f8f9fa", minHeight: "100vh", pb: 10 }}>
+      {/* Header Section */}
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, #1e4164 0%, #2a5a8a 100%)",
+          pt: 15,
+          pb: 10,
+          color: "white",
+        }}>
         <Container>
           <Stack
-            sx={{
-              flexDirection: { xs: "column", sm: "row" },
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "10px",
-              gap: 3,
-            }}
-          >
-            <Stack sx={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-              <img
-                style={{
-                  width: "70px",
-                  boxShadow: "0 -1px 15px -3px rgba(0, 0, 0, 0.2)",
-                  borderRadius: "50%",
-                  height: "70px",
-                }}
-                src={developer.img}
-                alt={developer.devName[lang]}
-              />
-              <Typography
-                sx={{ fontWeight: "bold", color: "#1e4164 " }}
-                variant="h5"
-                component="h2"
-              >
-                {developer.devName[lang]}
-              </Typography>
-            </Stack>
-            <span className="text-2" data-test="entity-type">
-              {lang === "ar" ? "مطور" : "Developer"}
-            </span>
-          </Stack>
-          <Divider sx={{ borderWidth: "1px" }} />
-          <Box sx={{ padding: "20px 0 0 0" }}>
-            <Typography
+            direction={{ xs: "column", sm: "row" }}
+            spacing={4}
+            alignItems="center">
+            <Avatar
+              src={developer?.img}
+              alt={developer?.devName?.[lang]}
               sx={{
-                fontWeight: "bold",
-                color: "#1e4164 ",
-                padding: "10px 0",
-              }}
-            >
-              {`${lang === "ar" ? "عن" : "About"} ${developer.devName[lang]}`}
-            </Typography>
-            <ReactMarkdown
-              children={developer.devDis[lang]}
-              components={{
-                p: ({ node, ...props }) => (
-                  <p style={{ whiteSpace: "pre-line" }} {...props} />
-                ),
-                h6: ({ node, ...props }) => (
-                  <h6 style={{ margin: "10px 0" }} {...props} />
-                ),
+                width: 120,
+                height: 120,
+                border: "4px solid white",
+                boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
               }}
             />
-            <Stack>
+            <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
+              <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
+                {developer?.devName?.[lang]}
+              </Typography>
               <Typography
                 sx={{
-                  padding: "10px 0",
-                  fontWeight: "bold",
-                  color: "#1e4164 ",
-                }}
-              >
-                {`${
-                  lang === "ar" ? "استكشاف المشاريع في" : "Explore projects In"
-                } ${developer.devName[lang]}`}
+                  opacity: 0.9,
+                  fontSize: "1.1rem",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}>
+                {lang === "ar"
+                  ? "المطور العقاري المعتمد"
+                  : "Certified Real Estate Developer"}
               </Typography>
-              {loadingcompound ? (
-                <Stack
-                  sx={{
-                    height: "100px",
-                    justifyContent: "center",
-                    alignItems: "center",
+            </Box>
+          </Stack>
+        </Container>
+      </Box>
+
+      <Container sx={{ mt: -5 }}>
+        {developer ? (
+          <>
+            {/* About Section */}
+            <Paper
+              elevation={3}
+              sx={{ p: { xs: 3, md: 5 }, borderRadius: 4, mb: 6 }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: "bold",
+                  color: "#1e4164",
+                  mb: 3,
+                  borderBottom: "2px solid #eee",
+                  pb: 1,
+                }}>
+                {lang === "ar"
+                  ? `عن ${developer.devName[lang]}`
+                  : `About ${developer.devName[lang]}`}
+              </Typography>
+              <Box sx={{ color: "#555", lineHeight: 1.8, fontSize: "1.05rem" }}>
+                <ReactMarkdown
+                  children={developer.devDis[lang]}
+                  components={{
+                    p: ({ node, ...props }) => (
+                      <p
+                        style={{ whiteSpace: "pre-line", marginBottom: "15px" }}
+                        {...props}
+                      />
+                    ),
                   }}
-                >
+                />
+              </Box>
+            </Paper>
+
+            {/* Projects Section */}
+            <Box>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: "bold",
+                  color: "#1e4164",
+                  mb: 4,
+                  textAlign: "center",
+                }}>
+                {lang === "ar" ? "استكشاف المشاريع" : "Explore Projects"}
+              </Typography>
+
+              {loadingcompound ? (
+                <Stack alignItems="center" sx={{ py: 5 }}>
                   <ReactLoading
-                    color="black"
-                    type={"spin"}
-                    height={"50px"}
-                    width={"50px"}
+                    color="#1e4164"
+                    type="spin"
+                    height={50}
+                    width={50}
                   />
                 </Stack>
-              ) : compounds && compounds.length > 0 ? (
+              ) : compounds.length > 0 ? (
                 <Row>
-                  {compounds.map((project, index) => {
-                    return (
-                      <Col
-                        key={index}
-                        className="col-md-6 col-12 col-lg-4"
-                        style={{ marginBottom: "15px", position: "relative" }}
-                      >
-                        <Card
-                          sx={{
-                            position: "relative",
-                            height: "100%",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <Link
-                            to={`/developers/${devId}/${project.id}`}
-                            style={{ textDecoration: "none" }}
-                          >
-                            <Box sx={{ height: "216px" }}>
-                              <img
-                                style={{
-                                  height: "100%",
-                                  width: "100%",
-                                  objectFit: "cover",
-                                }}
-                                src={project.compoundImgs[0]}
-                                alt={project.compoundName[lang]}
-                              />
+                  {compounds.map((project, index) => (
+                    <Col key={index} lg={4} md={6} xs={12} className="mb-5">
+                      <Card
+                        sx={{
+                          height: "100%",
+                          borderRadius: "20px", // زوايا أكثر نعومة
+                          overflow: "hidden",
+                          backgroundColor: "#fff",
+                          border: "1px solid rgba(0,0,0,0.05)",
+                          transition:
+                            "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                          position: "relative",
+                          "&:hover": {
+                            transform: "translateY(-12px)",
+                            boxShadow: "0 25px 50px rgba(0,0,0,0.1)",
+                            "& img": {
+                              transform: "scale(1.1)", // تأثير زووم للصورة عند التحويم
+                            },
+                            "& .contact-overlay": {
+                              opacity: 1,
+                              bottom: "20px",
+                            },
+                          },
+                        }}>
+                        <Link
+                          to={`/developers/${devId}/${project.id}`}
+                          style={{ textDecoration: "none", color: "inherit" }}>
+                          {/* Container الصورة مع Badge الموقع */}
+                          <Box
+                            sx={{
+                              height: 260,
+                              overflow: "hidden",
+                              position: "relative",
+                            }}>
+                            <img
+                              style={{
+                                height: "100%",
+                                width: "100%",
+                                objectFit: "cover",
+                                transition: "transform 0.6s ease",
+                              }}
+                              src={project.compoundImgs[0]}
+                              alt={project.compoundName[lang]}
+                            />
+
+                            {/* Badge الموقع فوق الصورة بشكل أنيق */}
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                top: 15,
+                                left: 15,
+                                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                backdropFilter: "blur(5px)",
+                                padding: "5px 12px",
+                                borderRadius: "10px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
+                                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                              }}>
+                              <Typography
+                                variant="caption"
+                                sx={{ fontWeight: "bold", color: "#1e4164" }}>
+                                📍 {project.Location[lang]}
+                              </Typography>
                             </Box>
-                            <CardContent
-                              style={{ padding: "15px 15px 0 15px" }}
-                            >
-                              <Stack>
-                                <Typography
-                                  sx={{
-                                    lineHeight: "1.3",
-                                    fontWeight: "bold",
-                                    color: "rgb(30, 65, 100)",
-                                  }}
-                                  variant="body1"
-                                >
-                                  {project.compoundName[lang]}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: " rgb(100, 100, 100) ",
-                                    lineHeight: "1",
-                                    padding: "0 0 0 5px",
-                                  }}
-                                >
-                                  {project.Location[lang]}
-                                </Typography>
-                              </Stack>
-                            </CardContent>
-                          </Link>
-                          <Stack sx={{ padding: "0 10px 10px 0" }}>
+
+                            {/* تدرج لوني أسفل الصورة ليظهر النص بوضوح */}
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                height: "50%",
+                                background:
+                                  "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "flex-end",
+                                p: 3,
+                              }}>
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  color: "white",
+                                  fontWeight: "800",
+                                  fontSize: "1.2rem",
+                                  lineHeight: 1.2,
+                                  textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                                }}>
+                                {project.compoundName[lang]}
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                          <CardContent sx={{ p: 3, backgroundColor: "#fff" }}>
+                            <Stack spacing={1}>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: "#666",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  fontSize: "0.9rem",
+                                  minHeight: "40px",
+                                }}>
+                                {/* يمكنك هنا وضع وصف قصير أو تفاصيل إضافية */}
+                                {lang === "ar"
+                                  ? "استكشف تفاصيل المشروع والوحدات المتاحة"
+                                  : "Explore project details and available units"}
+                              </Typography>
+                            </Stack>
+                          </CardContent>
+                        </Link>
+
+                        <Divider sx={{ opacity: 0.6, mx: 2 }} />
+
+                        {/* منطقة أزرار التواصل بتنسيق أنيق */}
+                        <Box
+                          sx={{
+                            p: 2,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            backgroundColor: "#fcfcfc",
+                          }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: "#999", fontWeight: "bold" }}>
+                            {lang === "ar" ? "تواصل الآن" : "Contact Now"}
+                          </Typography>
+                          <Box
+                            sx={{
+                              transition: "0.3s",
+                              "&:hover": { transform: "scale(1.1)" },
+                            }}>
                             <ContactUsIcon
                               sectionName="Developer"
                               sectionData={project}
                             />
-                          </Stack>
-                        </Card>
-                      </Col>
-                    );
-                  })}
+                          </Box>
+                        </Box>
+                      </Card>
+                    </Col>
+                  ))}
                 </Row>
               ) : (
-                <Stack
-                  sx={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "150px",
-                  }}
-                >
-                  <Typography>No Data in {country[lang]}</Typography>
-                </Stack>
+                <Paper sx={{ p: 10, textAlign: "center", borderRadius: 4 }}>
+                  <Typography variant="h6" color="textSecondary">
+                    {lang === "ar"
+                      ? "لا توجد مشاريع متاحة حالياً"
+                      : `No projects found in ${country?.[lang]}`}
+                  </Typography>
+                </Paper>
               )}
-            </Stack>
-          </Box>
-        </Container>
-      ) : (
-        <Stack sx={{ height: "calc(100vh - 100px)", justifyContent: "center" }}>
-          <Typography
-            variant="h4"
-            sx={{ textAlign: "center", fontWeight: "bold" }}
-          >
-            Oops, Data not Found
-          </Typography>
-        </Stack>
-      )}
+            </Box>
+          </>
+        ) : (
+          <Stack sx={{ py: 20, alignItems: "center" }}>
+            <Typography variant="h4" fontWeight="bold">
+              Oops, Data not Found
+            </Typography>
+          </Stack>
+        )}
+      </Container>
     </Box>
   );
 }

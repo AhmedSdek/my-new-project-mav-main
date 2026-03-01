@@ -74,8 +74,7 @@ function Navs() {
         fixed="top"
         expand="lg"
         data-bs-theme="dark"
-        id="navs"
-      >
+        id="navs">
         <Container>
           <Link aria-label="Home" to="/" style={{ width: "150px" }}>
             <img
@@ -87,22 +86,19 @@ function Navs() {
           <Navbar.Toggle id="navbar-toggler" aria-controls="navbarScroll" />
           <Navbar.Collapse
             id="navbarScroll"
-            style={{ justifyContent: "center" }}
-          >
+            style={{ justifyContent: "center" }}>
             <Nav style={{ fontSize: "15px" }}>
               <NavLink
                 to="/"
                 end
                 className={({ isActive }) =>
                   isActive ? "nav-link active" : "nav-link"
-                }
-              >
+                }>
                 {lang === "ar" ? "الصفحه الرئيسيه " : "Home"}
               </NavLink>
               <NavDropdown
                 title={lang === "ar" ? "المناطق" : "Districts"}
-                id="navbarScrollingDropdown"
-              >
+                id="navbarScrollingDropdown">
                 {districts.map((link, index) => {
                   return (
                     <NavDropdown.Item
@@ -110,8 +106,7 @@ function Navs() {
                       key={index}
                       className="dropdown-item"
                       to={`/${link.en}`}
-                      eventKey="0"
-                    >
+                      eventKey="0">
                       {link[lang]}
                     </NavDropdown.Item>
                   );
@@ -122,8 +117,7 @@ function Navs() {
                   isActive ? "nav-link active" : "nav-link"
                 }
                 to="/sell"
-                eventKey="0"
-              >
+                eventKey="0">
                 {lang === "ar" ? "بيع-إيجار" : "Sell-Rent"}
               </NavLink>
               <NavLink
@@ -131,17 +125,15 @@ function Navs() {
                   isActive ? "nav-link active" : "nav-link"
                 }
                 to="/newlaunches"
-                eventKey="0"
-              >
-                {lang === "ar" ? "وحدات جديده" : "New Launches"}
+                eventKey="0">
+                {lang === "ar" ? "مشاريع جديده" : "New Launches"}
               </NavLink>
               <NavLink
                 className={({ isActive }) =>
                   isActive ? "nav-link active" : "nav-link"
                 }
                 to="/contact"
-                eventKey="0"
-              >
+                eventKey="0">
                 {lang === "ar" ? "اتصل بنا" : "Contact Us"}
               </NavLink>
               <NavLink
@@ -149,8 +141,7 @@ function Navs() {
                   isActive ? "nav-link active" : "nav-link"
                 }
                 to="/about"
-                eventKey="0"
-              >
+                eventKey="0">
                 {lang === "ar" ? "عنا" : "About"}
               </NavLink>
               <NavLink
@@ -158,21 +149,18 @@ function Navs() {
                   isActive ? "nav-link active" : "nav-link"
                 }
                 to="/maverickdeals"
-                eventKey="0"
-              >
+                eventKey="0">
                 {lang === "ar" ? "عروض مافريك" : "Maverick Deals"}
               </NavLink>
             </Nav>
           </Navbar.Collapse>
           <Navbar.Collapse
             id="navbarScroll2"
-            style={{ justifyContent: "end", flexGrow: 0 }}
-          >
+            style={{ justifyContent: "end", flexGrow: 0 }}>
             <Nav
               style={{
                 gap: "10px",
-              }}
-            >
+              }}>
               <Stack sx={{ flexDirection: "row" }}>
                 <ToggleButton
                   sx={{
@@ -188,8 +176,7 @@ function Navs() {
                   }}
                   onClick={handleToggleLanguage}
                   value={lang}
-                  aria-label="language toggle"
-                >
+                  aria-label="language toggle">
                   {lang === "en" ? "عربي" : "English"}
                 </ToggleButton>
                 <ToggleButton
@@ -206,8 +193,7 @@ function Navs() {
                   }}
                   onClick={handleToggleCountry}
                   value={country}
-                  aria-label="language toggle"
-                >
+                  aria-label="language toggle">
                   {lang === "en"
                     ? country.en === "egypt"
                       ? "UAE"

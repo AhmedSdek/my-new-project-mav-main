@@ -7,15 +7,19 @@ import {
   Container,
   Stack,
   Typography,
-  Badge,
+  Grid,
+  Chip,
+  Divider,
+  CardMedia,
 } from "@mui/material";
 import {
   BedroomParentOutlined,
   BathroomOutlined,
   AspectRatio,
+  LocationOnOutlined,
+  AccessTimeOutlined,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import { Col, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { db } from "../../firebase/config";
 import { useGlobal } from "../../context/GlobalContext";
@@ -24,15 +28,17 @@ import ContactUsIcon from "../../comp/Contact Us/ContactUsIcon";
 import MavLoading from "../../comp/Loading/MavLoading";
 import im from "./2238332.png";
 import Filter from "../../comp/filter/Filter";
+
 function MaverickDeals() {
   const [deals, setDeals] = useState([]);
-  // console.log(deals);
   const { i18n } = useTranslation();
   const lang = i18n.language;
+  const isAr = lang === "ar";
   const [loading, setLoading] = useState(true);
   const { country } = useGlobal();
+
   const [filters, setFilters] = useState({
-    price: [0, 10000000],
+    price: [0, 100000000],
     area: [0, 10000],
     type: "",
     bed: "",
@@ -41,11 +47,12 @@ function MaverickDeals() {
     sale: "",
     monyType: "",
     compoundName: "",
-    search: "", // 🔍 هنا السيرش
+    search: "",
   });
-  const defaultFilters = useMemo(() => {
-    return {
-      price: [0, 10000000],
+
+  const defaultFilters = useMemo(
+    () => ({
+      price: [0, 100000000],
       area: [0, 10000],
       type: "",
       bed: "",
@@ -54,9 +61,11 @@ function MaverickDeals() {
       sale: "",
       monyType: "",
       compoundName: "",
-      search: "", // 🔍 هنا السيرش
-    };
-  }, []);
+      search: "",
+    }),
+    []
+  );
+
   useEffect(() => {
     const fetchDeals = async () => {
       try {
@@ -79,587 +88,368 @@ function MaverickDeals() {
     fetchDeals();
   }, [country]);
 
-  const filteredDeals = deals.filter((deal) => {
-    const price = Number(deal.price);
-    const area = Number(deal.Area);
-    const type = deal.Type?.[lang]?.toLowerCase() || "";
-    const bed = deal.Bed?.[lang];
-    const bath = deal.Bath?.[lang];
-    const Finsh = deal.Finsh?.[lang];
-    const sale = deal.Sale?.[lang];
-    const monyType = deal.monyType?.[lang];
-    const compoundName = deal.compoundName?.[lang];
-    const devName = deal.developer.devName?.[lang]?.toLowerCase() || "";
-    const Location = deal.Location?.[lang]?.toLowerCase() || "";
+  const filteredDeals = useMemo(() => {
+    return deals.filter((deal) => {
+      const price = Number(deal.price);
+      const area = Number(deal.Area);
+      const searchLower = filters.search.toLowerCase();
+      const matchesSearch =
+        !filters.search ||
+        deal.developer?.devName?.[lang]?.toLowerCase().includes(searchLower) ||
+        deal.compoundName?.[lang]?.toLowerCase().includes(searchLower) ||
+        deal.Location?.[lang]?.toLowerCase().includes(searchLower);
 
-    const searchLower = filters.search.toLowerCase();
+      return (
+        price >= filters.price[0] &&
+        price <= filters.price[1] &&
+        area >= filters.area[0] &&
+        area <= filters.area[1] &&
+        (filters.type === "" || deal.Type?.[lang]?.includes(filters.type)) &&
+        (filters.bed === "" || filters.bed == deal.Bed?.[lang]) &&
+        (filters.bath === "" || filters.bath == deal.Bath?.[lang]) &&
+        matchesSearch
+      );
+    });
+  }, [deals, filters, lang]);
 
-    const matchesSearch =
-      !filters.search ||
-      devName.includes(searchLower) ||
-      compoundName?.toLowerCase().includes(searchLower) ||
-      Location?.toLowerCase().includes(searchLower) ||
-      type.includes(searchLower);
+  const formatNum = (num) =>
+    new Intl.NumberFormat(isAr ? "ar-EG" : "en-US").format(num);
 
-    return (
-      price >= filters.price[0] &&
-      price <= filters.price[1] &&
-      area >= filters.area[0] &&
-      area <= filters.area[1] &&
-      (filters.type === "" || type.includes(filters.type.toLowerCase())) &&
-      (filters.bed === "" || filters.bed == bed) &&
-      (filters.bath === "" || filters.bath == bath) &&
-      (filters.Finsh === "" || filters.Finsh == Finsh) &&
-      (filters.sale === "" || filters.sale == sale) &&
-      (filters.monyType === "" || filters.monyType == monyType) &&
-      (filters.compoundName === "" || filters.compoundName == compoundName) &&
-      matchesSearch // ✅ شرط السيرش
-    );
-  });
-  const label = useMemo(() => {
-    return {
-      ar: "البحث بالكمبوند، الموقع،المطور",
-      en: "Search by Compound, Location, Developer",
-    };
-  }, [lang]);
-  if (loading) {
+  if (loading)
     return (
       <Box
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: { xs: "calc(100vh - 160px)", sm: "calc(100vh - 100px)" },
-        }}
-      >
+          height: "80vh",
+        }}>
         <MavLoading />
       </Box>
     );
-  }
 
   return (
     <Box
       sx={{
-        padding: "70px 0 0",
-        minHeight: "calc(100vh - 100px)",
-        position: "relative",
-      }}
-    >
-      <Container>
-        <Stack sx={{ gap: 2 }}>
-          <Stack
-            sx={{
-              flexDirection: { xs: "column", sm: "row" },
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <div className="header">
-              <h1
-                style={{
-                  fontFamily: "materialBold",
-                  fontSize: "20px",
-                  color: "rgb(30, 65, 100)",
-                  textTransform: "uppercase",
-                  letterSpacing: "4.14px",
-                }}
-              >
-                Explore All
-                <span
-                  style={{
-                    color: "rgb(255 110 25)",
-                    fontSize: "40px",
-                    verticalAlign: "middle",
-                    letterSpacing: "0px",
-                  }}
-                >
-                  Deals
-                </span>
-              </h1>
-              <h2
-                style={{
-                  textTransform: "uppercase",
-                  letterSpacing: "2.34px",
-                  color: "rgb(100, 100, 100)",
-                  fontSize: "18px",
-                }}
-              >
-                Be the first one to Reserve your Unit
-              </h2>
-            </div>
-            <ContactUsBtn sectionName="Maverick-Deals" />
-          </Stack>
+        py: 6,
+        bgcolor: "#F8FAFC",
+        minHeight: "100vh",
+        direction: isAr ? "rtl" : "ltr",
+      }}>
+      <Container maxWidth="lg">
+        {/* Compact Header */}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 4 }}
+          spacing={2}>
+          <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
+            <Typography variant="h4" sx={{ fontWeight: 900, color: "#0A2540" }}>
+              Maverick <span style={{ color: "#ff6e19" }}>Deals</span>
+            </Typography>
+          </Box>
+          <ContactUsBtn sectionName="Maverick-Deals" />
+        </Stack>
 
+        {/* Filter Box */}
+        <Box
+          sx={{
+            mb: 4,
+            p: 0.5,
+            bgcolor: "white",
+            borderRadius: "16px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          }}>
           <Filter
             data={deals}
             filters={filters}
             lang={lang}
             setFilters={setFilters}
-            label={label}
             length={filteredDeals}
             defaultFilters={defaultFilters}
+            label={{ ar: "بحث عن عقار...", en: "Search properties..." }}
           />
+        </Box>
 
-          {/* <Stack
-            sx={{
-              flexDirection: "row",
-              gap: 2,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <TextField
-              fullWidth
-              label={`${
-                lang === "ar"
-                  ? "البحث بالكمبوند، الموقع،المطور"
-                  : "Search by Compound, Location, Developer"
-              }`}
-              variant="outlined"
-              value={filters.search}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, search: e.target.value }))
-              }
-            />
-            <IconButton
-              onClick={() => setOpenFilterDrawer(true)}
-              sx={{
-                borderRadius: 1,
-                width: 40,
-                height: 40,
-                backgroundColor: "#f5f5f5", // اختياري
-                "&:hover": {
-                  backgroundColor: "#e0e0e0", // اختياري
-                },
-              }}
-            >
-              <Tune />
-            </IconButton>
-          </Stack> */}
-          {/* ✅ الفلاتر */}
-          {/* <SwipeableDrawer
-            anchor="bottom"
-            open={openFilterDrawer}
-            onClose={() => setOpenFilterDrawer(false)}
-            onOpen={() => setOpenFilterDrawer(true)}
-          >
-            <Container>
-              <Stack sx={{ padding: "10px" }}>
-                <Stack
+        <Grid container spacing={2.5}>
+          {filteredDeals.map((item) => (
+            <Grid item xs={12} sm={6} md={4} key={item.id}>
+              <Card
+                sx={{
+                  borderRadius: "20px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+                  transition: "0.3s",
+                  position: "relative",
+                  overflow: "visible", // للسماح لبعض العناصر بالخروج قليلاً إذا لزم الأمر
+                  "&:hover": {
+                    transform: "translateY(-8px)",
+                    boxShadow: "0 12px 30px rgba(0,0,0,0.1)",
+                  },
+                }}>
+                {/* Image Section */}
+                <Box
                   sx={{
-                    flexDirection: "row",
-                    justifyContent: "start",
-                    alignItems: "center",
-                    gap: 2,
-                    padding: "15px",
-                  }}
-                >
-                  <IconButton
-                    onClick={() => setOpenFilterDrawer(false)}
-                    sx={{
-                      borderRadius: 1, // 0 للمربع التام، أو 1 (يعني 4px) لمربع بزوايا خفيفة
-                      width: 40,
-                      height: 40,
-                      backgroundColor: "#f5f5f5", // اختياري
-                      "&:hover": {
-                        backgroundColor: "#e0e0e0", // اختياري
-                      },
-                    }}
-                  >
-                    <Close color="error" />
-                  </IconButton>
-                  <Typography
-                    sx={{
-                      fontFamily: "materialBold",
-                      fontSize: "20px",
-                      color: "rgb(30, 65, 100)",
-                      textTransform: "uppercase",
-                      letterSpacing: "4.14px",
-                    }}
-                  >
-                    {lang === "ar" ? "خيارات البحث" : "Filter options"}
-                  </Typography>
-                </Stack>
-                <Grid
-                  container
-                  spacing={4}
-                  sx={{
-                    px: 4,
-                    justifyContent: { xs: "center", md: "initial" },
-                  }}
-                >
-
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth sx={{ minWidth: 200 }}>
-                      <InputLabel>Type</InputLabel>
-                      <Select
-                        label="Type"
-                        value={filters.type}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            type: e.target.value,
-                          }))
-                        }
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        {Array.from(
-                          new Set(deals.map((d) => d.Type?.[lang]))
-                        ).map((type) => (
-                          <MenuItem key={type} value={type}>
-                            {type}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth sx={{ minWidth: 200 }}>
-                      <InputLabel>Bedrooms</InputLabel>
-                      <Select
-                        label="Bedrooms"
-                        value={filters.bed}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            bed: e.target.value,
-                          }))
-                        }
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        {[...new Set(deals.map((d) => d.Bed?.[lang]))].map(
-                          (bed, index) => (
-                            <MenuItem key={index} value={bed}>
-                              {bed}
-                            </MenuItem>
-                          )
-                        )}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth sx={{ minWidth: 200 }}>
-                      <InputLabel>Bath</InputLabel>
-                      <Select
-                        label="Bath"
-                        value={filters.bath}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            bath: e.target.value,
-                          }))
-                        }
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        {[...new Set(deals.map((d) => d.Bath?.[lang]))].map(
-                          (bath, index) => (
-                            <MenuItem key={index} value={bath}>
-                              {bath}
-                            </MenuItem>
-                          )
-                        )}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth sx={{ minWidth: 200 }}>
-                      <InputLabel>Finishing</InputLabel>
-                      <Select
-                        label="Finishing"
-                        value={filters.Finsh}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            Finsh: e.target.value,
-                          }))
-                        }
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        {Array.from(
-                          new Set(deals.map((d) => d.Finsh?.[lang]))
-                        ).map((Finsh) => (
-                          <MenuItem key={Finsh} value={Finsh}>
-                            {Finsh}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth sx={{ minWidth: 200 }}>
-                      <InputLabel>Sale</InputLabel>
-                      <Select
-                        label="Sale"
-                        value={filters.sale}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            sale: e.target.value,
-                          }))
-                        }
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        {Array.from(
-                          new Set(deals.map((d) => d.Sale?.[lang]))
-                        ).map((sale) => (
-                          <MenuItem key={sale} value={sale}>
-                            {sale}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth sx={{ minWidth: 200 }}>
-                      <InputLabel>Money Type</InputLabel>
-                      <Select
-                        label="Money Type"
-                        value={filters.monyType}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            monyType: e.target.value,
-                          }))
-                        }
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        {Array.from(
-                          new Set(deals.map((d) => d.monyType?.[lang]))
-                        ).map((mony) => (
-                          <MenuItem key={mony} value={mony}>
-                            {mony}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth sx={{ minWidth: 200 }}>
-                      <InputLabel>Compound</InputLabel>
-                      <Select
-                        label="Compound"
-                        value={filters.compoundName}
-                        onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            compoundName: e.target.value,
-                          }))
-                        }
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        {Array.from(
-                          new Set(deals.map((d) => d.compoundName?.[lang]))
-                        ).map((compound, index) => (
-                          <MenuItem key={index} value={compound}>
-                            {compound}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                </Grid>
-                <Grid container spacing={4} sx={{ p: "20px" }}>
-                  <Grid item size={{ xs: 12, sm: 6 }} sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom>Price Range</Typography>
-                    <Slider
-                      value={filters.price}
-                      onChange={handleSliderChange("price")}
-                      valueLabelDisplay="auto"
-                      step={100000}
-                      min={0}
-                      max={10000000}
+                    position: "relative",
+                    height: 210,
+                    m: 1,
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    // إضافة ظل خفيف للصورة نفسها
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+                  }}>
+                  <Link to={`/maverickdeals/${item.id}`}>
+                    <CardMedia
+                      component="img"
+                      image={item.img[0]}
+                      sx={{
+                        height: "100%",
+                        transition: "0.8s cubic-bezier(0.4, 0, 0.2, 1)",
+                        "&:hover": { transform: "scale(1.1)" },
+                      }}
                     />
-                  </Grid>
+                  </Link>
 
-                  <Grid item size={{ xs: 12, sm: 6 }} sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom>Area Range (m²)</Typography>
-                    <Slider
-                      value={filters.area}
-                      onChange={handleSliderChange("area")}
-                      valueLabelDisplay="auto"
-                      step={10}
-                      min={0}
-                      max={10000}
-                    />
-                  </Grid>
-                </Grid>
-              </Stack>
-            </Container>
-          </SwipeableDrawer> */}
-
-          {/* ✅ عرض الكروت */}
-          <Row>
-            {filteredDeals.length > 0 ? (
-              filteredDeals.map((item, index) => (
-                <Col
-                  className="col-sm-6 col-12 col-lg-4 col-md-6"
-                  key={index}
-                  style={{ marginBottom: "15px" }}
-                >
-                  <Card
+                  {/* Overlay للتدرج اللوني - يجعل النصوص واضحة */}
+                  <Box
                     sx={{
-                      position: "relative",
-                      height: "100%",
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 40%, rgba(0,0,0,0.7) 100%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+
+                  {/* Top Badges: Sale & Delivery */}
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    sx={{
+                      position: "absolute",
+                      top: 12,
+                      left: 12,
+                      right: 12,
+                      width: "calc(100% - 24px)",
+                    }}>
+                    <Chip
+                      label={item.Sale[lang]}
+                      size="small"
+                      sx={{
+                        bgcolor: "#ff6e19",
+                        color: "white",
+                        fontWeight: 800,
+                        fontSize: "0.65rem",
+                        textTransform: "uppercase",
+                        height: 24,
+                        boxShadow: "0 4px 10px rgba(255,110,25,0.4)",
+                      }}
+                    />
+
+                    {item.delivery && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                          bgcolor: "rgba(255, 255, 255, 0.15)",
+                          backdropFilter: "blur(8px)",
+                          color: "white",
+                          px: 1.2,
+                          py: 0.4,
+                          borderRadius: "8px",
+                          border: "1px solid rgba(255,255,255,0.2)",
+                        }}>
+                        <AccessTimeOutlined sx={{ fontSize: 13 }} />
+                        <Typography
+                          sx={{ fontSize: "0.65rem", fontWeight: 600 }}>
+                          {item.delivery[lang]}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Stack>
+
+                  {/* Bottom Price Section - Modern Glass Style */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 12,
+                      right: isAr ? "auto" : 12,
+                      left: isAr ? 12 : "auto",
                       display: "flex",
                       flexDirection: "column",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Link
-                      to={`/maverickdeals/${item.id}`}
-                      style={{ textDecoration: "none" }}
-                    >
-                      <Stack>
-                        <Box sx={{ height: "215px" }}>
-                          <img
-                            src={item.img[0]}
-                            alt={item.Type[lang]}
-                            style={{
-                              height: "100%",
-                              width: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                        </Box>
-                        <CardContent sx={{ padding: "15px" }}>
-                          <Stack>
-                            <Typography variant="h6" fontWeight="bold">
-                              {`${item.Type[lang]} in ${item.compoundName[lang]}`}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{ color: "gray" }}
-                            >
-                              {item.Location[lang]}
-                            </Typography>
-                          </Stack>
-                          <Typography sx={{ pt: 1 }}>
-                            <img
-                              style={{ width: "25px", height: "25px" }}
-                              src={im}
-                              alt=""
-                            />
-                            {` ${item.delivery[lang]}`}
-                          </Typography>
-                          <Stack direction="row" sx={{ gap: 2 }} mt={2}>
-                            <Badge
-                              badgeContent={item.Bed[lang]}
-                              color="primary"
-                            >
-                              <BedroomParentOutlined />
-                            </Badge>
-                            <Badge
-                              badgeContent={item.Bath[lang]}
-                              color="primary"
-                            >
-                              <BathroomOutlined />
-                            </Badge>
-                            <Stack sx={{ flexDirection: "row" }}>
-                              <Badge
-                                badgeContent={item.Area}
-                                max={99999}
-                                color="primary"
-                              >
-                                <AspectRatio />
-                              </Badge>
-                              &nbsp;m²
-                            </Stack>
-                          </Stack>
-                          <Box
-                            sx={{
-                              position: "absolute",
-                              top: 16,
-                              backgroundColor: "rgb(255 145 77)",
-                              color: "white",
-                              borderRadius: "50%",
-                              width: "50px",
-                              height: "50px",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Typography fontWeight="bold" color="#1e4164">
-                              {`${item.Sale[lang]}`}
-                            </Typography>
-                          </Box>
-                          {item.sold.en === "SOLD OUT" && (
-                            <Box
-                              sx={{
-                                position: "absolute",
-                                top: "20px",
-                                right: "5px",
-                                backgroundColor: "white",
-                                color: "red",
-                                borderRadius: " 5px ",
-                                border: "2px solid red",
-                                width: "100px",
-                                height: "30px",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            >
-                              <Typography
-                                sx={{
-                                  fontWeight: "bold",
-                                  color: "white",
-                                  backgroundColor: "red",
-                                  width: "95%",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {`${item.sold[lang]}`}
-                              </Typography>
-                            </Box>
-                          )}
-                          <Typography fontWeight="bold">
-                            {`${Intl.NumberFormat("en-US").format(
-                              item.price
-                            )} ${
-                              item.monyType.en === "dollar"
-                                ? lang === "ar"
-                                  ? "دولار"
-                                  : "$"
-                                : lang === "ar"
-                                ? "جم"
-                                : "EGP"
-                            }`}
-                          </Typography>
-                        </CardContent>
-                      </Stack>
-                    </Link>
-                    <Stack
+                      alignItems: isAr ? "flex-start" : "flex-end",
+                    }}>
+                    <Typography
                       sx={{
-                        p: "0 10px 10px 0",
-                        flexDirection: "row",
-                        justifyContent: "end",
-                      }}
-                    >
-                      <ContactUsIcon
-                        sectionName="Maverick-Deals"
-                        sectionData={item}
-                      />
+                        color: "white",
+                        fontSize: "1.2rem",
+                        fontWeight: 900,
+                        textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "baseline",
+                        gap: 0.5,
+                      }}>
+                      {formatNum(item.price)}
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          color: "#ff6e19",
+                          bgcolor: "white",
+                          px: 0.8,
+                          py: 0.2,
+                          borderRadius: "4px",
+                          ml: isAr ? 0 : 0.5,
+                          mr: isAr ? 0.5 : 0,
+                        }}>
+                        {item.monyType.en === "dollar"
+                          ? isAr
+                            ? "دولار"
+                            : "$"
+                          : isAr
+                          ? "ج.م"
+                          : "EGP"}
+                      </Typography>
+                    </Typography>
+                  </Box>
+
+                  {/* Sold Out Overlay */}
+                  {item.sold.en === "SOLD OUT" && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        inset: 0,
+                        bgcolor: "rgba(0,0,0,0.6)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backdropFilter: "blur(2px)",
+                      }}>
+                      <Typography
+                        sx={{
+                          border: "2px solid #ff4d4d",
+                          color: "#ff4d4d",
+                          fontWeight: 900,
+                          px: 2,
+                          py: 0.5,
+                          bgcolor: "white",
+                          transform: "rotate(-10deg)",
+                          boxShadow: "0 0 20px rgba(255,77,77,0.3)",
+                        }}>
+                        {item.sold[lang]}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+
+                <CardContent sx={{ p: "12px 16px !important" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: 800,
+                      color: "#0A2540",
+                      mb: 0.5,
+                      height: 28,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}>
+                    {item.Type[lang]} {isAr ? "في" : "in"}{" "}
+                    {item.compoundName[lang]}
+                  </Typography>
+
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={0.5}
+                    sx={{ mb: 1.5, opacity: 0.7 }}>
+                    <LocationOnOutlined
+                      sx={{ fontSize: 14, color: "#ff6e19" }}
+                    />
+                    <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                      {item.Location[lang]}
+                    </Typography>
+                  </Stack>
+
+                  <Divider sx={{ mb: 1.5, opacity: 0.5 }} />
+
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center">
+                    <Stack direction="row" spacing={1.5}>
+                      <Box sx={{ textAlign: "center" }}>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.3}>
+                          <BedroomParentOutlined
+                            sx={{ fontSize: 14, color: "#0A2540" }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 700 }}>
+                            {item.Bed[lang]}
+                          </Typography>
+                        </Stack>
+                      </Box>
+                      <Box sx={{ textAlign: "center" }}>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.3}>
+                          <BathroomOutlined
+                            sx={{ fontSize: 14, color: "#0A2540" }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 700 }}>
+                            {item.Bath[lang]}
+                          </Typography>
+                        </Stack>
+                      </Box>
+                      <Box sx={{ textAlign: "center" }}>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.3}>
+                          <AspectRatio
+                            sx={{ fontSize: 14, color: "#0A2540" }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 700 }}>
+                            {formatNum(item.Area)} m²
+                          </Typography>
+                        </Stack>
+                      </Box>
                     </Stack>
-                  </Card>
-                </Col>
-              ))
-            ) : (
-              <Stack alignItems="center" justifyContent="center" height="100%">
-                <Typography>No Deals Found!</Typography>
-              </Stack>
-            )}
-          </Row>
-        </Stack>
+
+                    <ContactUsIcon
+                      sectionName="Maverick-Deals"
+                      sectionData={item}
+                    />
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+          {filteredDeals.length === 0 && (
+            <Grid item xs={12} sx={{ textAlign: "center", py: 10 }}>
+              <Box
+                component="img"
+                src={im}
+                sx={{ width: 80, opacity: 0.3, mb: 2 }}
+              />
+              <Typography variant="h6" color="text.secondary">
+                No Units Found
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
       </Container>
     </Box>
   );
